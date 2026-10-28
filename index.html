@@ -202,6 +202,11 @@ a.clase .icon{font-size:2.4rem;margin-bottom:12px}
 a.clase p{flex:1}
 .bottom{justify-content:center;color:var(--muted);font-size:14px}
 @media(max-width:1000px){.clases{grid-template-columns:1fr}}
+a.machete{display:flex;align-items:center;gap:16px;margin-top:22px;padding:16px 22px;border:2px solid var(--yellow);background:linear-gradient(160deg,rgba(255,220,141,.13),rgba(11,30,49,.92));color:inherit;text-decoration:none;border-radius:var(--radius);transition:transform .2s ease}
+a.machete:hover,a.machete:focus-visible{transform:translateY(-3px);outline:none}
+a.machete .icon{font-size:2.2rem}
+a.machete h3{margin:0 0 4px;color:var(--yellow)}
+a.machete p{margin:0;color:var(--muted)}
 </style>
 <style>/* ajuste para celular: que el contenido no quede más ancho que la pantalla */
 .app{grid-template-columns:minmax(0,1fr)}
@@ -219,6 +224,7 @@ a.clase p{flex:1}
       <p class="kicker">Google Cloud Data Analytics · conceptos fundamentales</p>
       <h1 style="max-width:1200px">Repaso de <span class="accent">Data Warehousing.</span></h1>
       <p class="lead">Tres presentaciones, una por curso, con solo lo necesario para el parcial. Cada una termina con una práctica interactiva de las preguntas del banco que le corresponden.</p>
+      <a class="machete" href="machete.html"><div class="icon" aria-hidden="true">⏱</div><div><h3>Machete: 15 minutos antes</h3><p>Todos los conceptos de los 3 cursos en una página: definición corta, ejemplo y pista para cada pregunta del banco.</p></div></a>
       <section class="clases" aria-label="Presentaciones disponibles">
           <a class="panel clase" href="dw-curso1-nube.html">
             <div class="icon" aria-hidden="true">☁️</div>

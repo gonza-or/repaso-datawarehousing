@@ -4,7 +4,9 @@
 var synth=window.speechSynthesis, Utt=window.SpeechSynthesisUtterance;
 if(!synth||!Utt)return;
 var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
-if(!slides.length)return;
+/* Sin diapositivas (machete): se lee por secciones marcadas con data-lectura. */
+var sections=slides.length?null:Array.prototype.slice.call(document.querySelectorAll('[data-lectura]'));
+if(!slides.length&&!sections.length)return;
 
 var RATES=[0.8,1,1.25,1.5];
 var store={get:function(k,d){try{var v=localStorage.getItem('lectura-'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
@@ -43,19 +45,19 @@ function collect(node,out){
   if(el.tagName==='TD'||el.tagName==='TH'){out.push(', ')}
   else if(block)out.push('\n');
   for(var c=el.firstChild;c;c=c.nextSibling)collect(c,out);
-  if(el.classList.contains('letter'))out.push(': ');
+  if(el.classList.contains('letter')||el.classList.contains('pl'))out.push(': ');
   else if(el.classList.contains('chip')||el.classList.contains('tag'))out.push(', ');
   else if(block)out.push('\n');
 }
 function clean(t){
   return t.replace(/\s*[→⇒➜]\s*/g,', ').replace(/[\u2190-\u21ff\u2700-\u27bf\u2b00-\u2bff\u{1F000}-\u{1FAFF}\uFE0F]/gu,' ')
     .replace(/\s*[·•|]\s*/g,', ').replace(/(\D)\s*\/\s*|\s*\/\s*(?=\D)/g,'$1, ').replace(/\bvs\.?(?=\s)/gi,'versus')
-    .replace(/PREGUNTA (\d+) DEL BANCO/g,'Pregunta $1 del banco').replace(/[«»"“”]/g,'').replace(/\s*—\s*/g,', ').replace(/[ \t]+/g,' ');
+    .replace(/\bEj\.\s*/g,'Por ejemplo: ').replace(/\s*#\d+/g,'').replace(/PREGUNTA (\d+) DEL BANCO/g,'Pregunta $1 del banco').replace(/[«»"“”]/g,'').replace(/\s*—\s*/g,', ').replace(/[ \t]+/g,' ');
 }
 function slideText(s){
   var out=[];collect(s,out);
-  return clean(out.join('')).split('\n').map(function(l){return l.trim().replace(/^[,;:.\s]+/,'').replace(/[,;\s]+$/,'')})
-    .filter(Boolean).map(function(l){return /[.!?:¿¡…]$/.test(l)?l:l+'.'}).join(' ').replace(/\s+([,.])/g,'$1').replace(/,\s*,/g,',');
+  return clean(out.join('')).split('\n').map(function(l){return l.trim().replace(/:\s*[,;]\s*/g,': ').replace(/^[,;:.\s]+/,'').replace(/[,;:\s]+$/,'')})
+    .filter(function(l){return l&&!/^Parcial$/.test(l)}).map(function(l){return /[.!?:¿¡…]$/.test(l)?l:l+'.'}).join(' ').replace(/\s+([,.])/g,'$1').replace(/,\s*,/g,',');
 }
 function chunks(text){
   var parts=text.match(/[^.!?…]+[.!?…]+["')\]]*\s*|[^.!?…]+$/g)||[], res=[];
@@ -82,12 +84,18 @@ box.innerHTML='<button type="button" class="lec-main" title="Escuchar esta diapo
   '<button type="button" class="lec-extra lec-cont" title="Seguir leyendo y pasar sola a la siguiente diapositiva">Continuo</button>';
 document.body.appendChild(box);
 var bMain=box.querySelector('.lec-main'),bStop=box.querySelector('.lec-stop'),bRate=box.querySelector('.lec-rate'),bCont=box.querySelector('.lec-cont');
-function place(){var f=document.querySelector('.bottom');box.style.bottom=((f?f.offsetHeight:0)+10)+'px'}
+function place(){var f=sections?null:document.querySelector('.bottom');box.style.bottom=((f?f.offsetHeight:0)+(sections?16:10))+'px'}
 place();window.addEventListener('resize',place);
 
 /* ---------- Motor ---------- */
 var state='idle', queue=[], idx=0, gen=0, slideEl=null, advanceTimer=null;
-function current(){return document.querySelector('.slide.active')}
+function current(){
+  if(!sections)return document.querySelector('.slide.active');
+  if(state!=='idle'&&slideEl)return slideEl;
+  for(var i=0;i<sections.length;i++){if(sections[i].getBoundingClientRect().bottom>90)return sections[i]}
+  return sections[sections.length-1];
+}
+function mark(el){if(!sections)return;sections.forEach(function(s){s.classList.toggle('lectura-leyendo',s===el)})}
 function render(){
   bMain.textContent=state==='playing'?'❚❚ Pausa':state==='paused'?'▶ Seguir':'🔊 Escuchar';
   bMain.setAttribute('aria-label',state==='playing'?'Pausar lectura':state==='paused'?'Seguir leyendo':'Escuchar esta diapositiva');
@@ -107,21 +115,28 @@ function speakNext(){
 }
 function onSlideEnd(){
   if(!continuo){stop();return}
+  if(sections){
+    var k=sections.indexOf(slideEl);
+    if(k<0||k>=sections.length-1){stop();return}
+    clearTimeout(advanceTimer);
+    advanceTimer=setTimeout(function(){if(state!=='playing')return;var nx=sections[k+1];nx.scrollIntoView({behavior:'smooth',block:'start'});startSlide(null,nx)},600);
+    return;
+  }
   var next=document.getElementById('nextBtn'), i=slides.indexOf(current());
   if(!next||next.disabled||i>=slides.length-1){stop();return}
   clearTimeout(advanceTimer);
   advanceTimer=setTimeout(function(){if(state==='playing')next.click()},700);
 }
-function startSlide(textOverride){
+function startSlide(textOverride,el){
   clearTimeout(advanceTimer);gen++;synth.cancel();
-  slideEl=current();
+  slideEl=el||current();mark(slideEl);
   queue=chunks(textOverride||slideText(slideEl));idx=0;state='playing';render();
   speakNext();
 }
 function pause(){gen++;clearTimeout(advanceTimer);synth.cancel();state='paused';render()}
 function resume(){state='playing';render();synth.cancel();speakNext()}
-function stop(){gen++;clearTimeout(advanceTimer);synth.cancel();state='idle';queue=[];idx=0;render()}
-function toggle(){if(state==='playing')pause();else if(state==='paused'&&current()===slideEl)resume();else startSlide()}
+function stop(){gen++;clearTimeout(advanceTimer);synth.cancel();state='idle';queue=[];idx=0;mark(null);render()}
+function toggle(){if(state==='playing')pause();else if(state==='paused'&&current()===slideEl)resume();else{if(sections)state='idle';startSlide()}}
 
 bMain.addEventListener('click',toggle);
 bStop.addEventListener('click',stop);
@@ -134,6 +149,7 @@ var mo=new MutationObserver(function(){
   if(state==='playing')startSlide();else if(state==='paused')stop();
 });
 slides.forEach(function(s){mo.observe(s,{attributes:true,attributeFilter:['class']})});
+if(sections)box.querySelector('.lec-main').title='Escuchar desde la sección que está arriba en pantalla (L)';
 
 /* Práctica: nueva pregunta → la lee; al responder → lee el resultado. */
 var qp=document.getElementById('qPrompt'),qf=document.getElementById('qFeedback'),lastQ=qp?qp.textContent:'';
