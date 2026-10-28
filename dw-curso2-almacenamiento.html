@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es-UY">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Curso 2 · Administración y almacenamiento · Data Warehousing</title>
+<style>
+:root{--bg:#081322;--bg2:#0c1d32;--panel:#10243a;--panel2:#132c47;--line:rgba(177,216,249,.20);--text:#f4f8ff;--muted:#b5c8de;--cyan:#73e1ed;--blue:#8ab6ff;--green:#8ce8b4;--red:#ff9a9a;--yellow:#ffdc8d;--violet:#c2a9ff;--radius:20px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
+button,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid var(--yellow);outline-offset:4px}
+button:disabled{opacity:.35;cursor:not-allowed}
+.app{height:100vh;height:100dvh;display:grid;grid-template-rows:64px minmax(0,1fr) 77px;background:radial-gradient(circle at 92% 9%,rgba(41,91,161,.24),transparent 34%),radial-gradient(circle at 7% 88%,rgba(23,124,141,.12),transparent 33%),linear-gradient(142deg,#07111e,#0b1a2d 62%,#071220)}
+.topbar,.bottom{display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,3vw,56px);gap:16px}
+.topbar{border-bottom:1px solid var(--line);background:rgba(8,19,34,.5)}
+.brand{display:flex;align-items:center;gap:12px;font-size:clamp(13px,1.12vw,17px);font-weight:780;letter-spacing:.01em;white-space:nowrap}
+.brandmark{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#092132;font-weight:900;font-size:16px}
+.top-right{display:flex;align-items:center;gap:16px;white-space:nowrap;color:var(--muted);font-size:clamp(12px,1vw,15px)}
+.sectiontag{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:850}
+.stage{position:relative;min-height:0;overflow:hidden}
+.slide{display:none;position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:clamp(16px,2.5vh,32px) clamp(28px,5vw,92px) clamp(18px,3vh,36px);scrollbar-color:#36516b transparent}
+.slide.active{display:flex;align-items:center;justify-content:center}
+.slide-inner{width:100%;max-width:1530px;margin:auto}
+.slide-inner.narrow{max-width:1200px}
+.kicker{color:var(--cyan);font-size:clamp(12px,1.05vw,18px);font-weight:850;letter-spacing:.17em;text-transform:uppercase;margin:0 0 12px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(54px,6.1vw,102px);letter-spacing:-.065em;line-height:.98;margin-bottom:25px;font-weight:860;max-width:1070px}
+h2{font-size:clamp(37px,4.25vw,68px);letter-spacing:-.056em;line-height:1.07;margin-bottom:18px;font-weight:830}
+h3{font-size:clamp(20px,1.8vw,29px);line-height:1.18;margin-bottom:12px}
+.lead{font-size:clamp(20px,2vw,32px);line-height:1.42;color:var(--muted);max-width:1120px;margin-bottom:24px}
+.big-lead{font-size:clamp(23px,2.5vw,40px);line-height:1.38;max-width:1060px}
+.accent{color:var(--cyan)}.accent-alt{color:var(--yellow)}
+.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.chip{border:1px solid rgba(115,225,237,.32);color:#c8f8ff;border-radius:999px;background:rgba(115,225,237,.09);font-size:clamp(13px,1.08vw,17px);font-weight:780;padding:10px 16px}
+.panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.3vw,22px);align-items:stretch;margin-top:20px}
+.panels.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panels.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.panel{border:1px solid var(--line);background:linear-gradient(160deg,rgba(20,47,72,.88),rgba(11,30,49,.92));border-radius:var(--radius);padding:clamp(17px,1.85vw,30px);min-width:0;box-shadow:0 14px 32px rgba(0,0,0,.10)}
+.panel.soft{background:rgba(21,44,66,.58)}
+.panel-title{font-size:clamp(15px,1.25vw,21px);font-weight:800;margin-bottom:12px;color:#d9e9fb}
+.panel p,.panel li{font-size:clamp(17px,1.45vw,23px);line-height:1.42;color:#d6e5f3;margin-bottom:8px}
+.panel .small{font-size:clamp(14px,1.1vw,17px);color:var(--muted)}
+.big-number{font-size:clamp(36px,3.9vw,66px);font-weight:850;line-height:1;color:var(--cyan)}
+.question{font-size:clamp(21px,2.25vw,37px);font-weight:690;line-height:1.34;margin-bottom:14px}
+.statement{font-size:clamp(22px,2.1vw,35px);font-weight:750;line-height:1.36}
+.rule{border:1px solid rgba(115,225,237,.38);background:rgba(50,116,144,.14);border-radius:16px;padding:16px 21px;font-size:clamp(20px,2.0vw,32px);font-weight:800;line-height:1.45;letter-spacing:-.02em;margin:14px 0}
+.rule.compact{font-size:clamp(18px,1.7vw,28px)}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;letter-spacing:-.025em}
+.callout{background:rgba(255,220,141,.09);border-left:4px solid var(--yellow);padding:14px 22px;border-radius:0 13px 13px 0;font-size:clamp(17px,1.5vw,24px);line-height:1.4;color:#ffedc1;margin-top:18px}
+.centered{text-align:center}.centered .lead{margin-left:auto;margin-right:auto}.centered .chip-row{justify-content:center}
+.big-btn,.answer-btn,.choice-btn,.subtle-btn{border:1px solid rgba(115,225,237,.36);border-radius:15px;padding:13px 20px;color:var(--text);background:#174360;font-weight:790;font-size:clamp(16px,1.28vw,20px);transition:background .16s,border-color .16s,transform .16s;min-height:48px}
+.big-btn:hover,.answer-btn:hover,.choice-btn:hover,.subtle-btn:hover{background:#205574;border-color:var(--cyan)}
+.big-btn:active,.choice-btn:active{transform:translateY(1px)}
+.big-btn.primary{background:var(--cyan);color:#092332;border-color:var(--cyan)}
+.big-btn.primary:hover{background:#a3f5f7}
+.answer-btn{background:rgba(28,69,95,.4)}
+.choice-btn.selected{color:#092332;background:var(--cyan);border-color:var(--cyan)}
+.subtle-btn{background:rgba(18,49,72,.55);font-size:clamp(14px,1.08vw,17px);padding:10px 15px}
+.button-row{display:flex;flex-wrap:wrap;gap:13px;align-items:center;margin-top:17px}
+.inline-note{font-size:clamp(14px,1.08vw,17px);line-height:1.4;color:var(--muted)}
+.switchbox{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:14px;background:rgba(9,27,47,.73);padding:14px 18px;font-size:clamp(17px,1.32vw,23px);font-weight:760;margin:8px 0}
+.switchbox button{flex-shrink:0;min-width:90px;border:1px solid rgba(255,255,255,.25);background:#293a4c;border-radius:12px;color:#d3dce8;padding:10px 12px;font-size:clamp(16px,1.3vw,22px);font-weight:850}
+.switchbox button.is-on{border-color:var(--green);background:#174b3a;color:#a5f9c5}
+.switchbox button.is-off{border-color:rgba(255,154,154,.4);color:#ffd0d0}
+.result{display:flex;gap:16px;align-items:center;border-radius:15px;padding:17px 20px;margin-top:14px;min-height:75px;background:rgba(63,85,111,.22);border:1px solid var(--line)}
+.result.good{border-color:rgba(140,232,180,.55);background:rgba(44,113,79,.20)}
+.result.bad{border-color:rgba(255,154,154,.5);background:rgba(132,54,68,.20)}
+.result.unknown{color:var(--muted)}
+.result .result-icon{font-size:clamp(26px,2.8vw,45px);font-weight:900}
+.result .result-text{font-size:clamp(18px,1.55vw,27px);font-weight:790;line-height:1.25}
+.result .explain{font-size:clamp(14px,1.1vw,17px);color:var(--muted);font-weight:480;margin-top:5px}
+.steps{counter-reset:step;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.step{opacity:.27;transition:opacity .2s,border-color .2s;border:1px solid var(--line);background:var(--panel);border-radius:15px;padding:16px 20px;display:flex;align-items:center;gap:18px;font-size:clamp(17px,1.55vw,25px);min-height:72px}
+.step.visible{opacity:1;border-color:rgba(115,225,237,.42)}
+.step-index{font-size:clamp(22px,2.1vw,34px);font-weight:850;color:var(--cyan)}
+.scenario-number{font-size:clamp(12px,.95vw,16px);font-weight:900;color:var(--cyan);letter-spacing:.13em;margin-bottom:9px}
+.truth-bit{display:inline-flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-weight:850;color:#10243a;border-radius:7px;width:38px;height:38px;font-size:23px;background:var(--green)}
+.truth-bit.false{background:var(--red)}
+.hint{color:var(--muted);font-size:clamp(15px,1.18vw,20px);line-height:1.4}
+.hidden-answer[hidden],.model-solution[hidden]{display:none !important}
+.hidden-answer{padding:13px 16px;background:rgba(140,232,180,.08);border:1px solid rgba(140,232,180,.3);border-radius:12px;color:#d5ffe7;margin-top:14px;font-size:clamp(16px,1.3vw,21px);line-height:1.45}
+.grid-test{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.test-card{padding:15px 18px;border-radius:14px;background:rgba(10,32,52,.79);border:1px solid var(--line)}
+.test-card .case-values{font-family:ui-monospace,monospace;font-size:clamp(17px,1.3vw,22px);line-height:1.45;color:#e2efff}
+.test-feedback{margin-top:7px;color:var(--yellow);font-weight:800;font-size:clamp(15px,1.2vw,20px)}
+pre.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#081321;border:1px solid rgba(138,182,255,.30);border-radius:15px;color:#d7eaff;padding:18px 23px;font-size:clamp(17px,1.45vw,23px);line-height:1.52;margin:12px 0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.editor-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:12px 0}
+select{color:var(--text);border:1px solid rgba(115,225,237,.45);border-radius:12px;background:#153a55;padding:10px 14px;min-width:120px;font-weight:800;font-size:clamp(16px,1.2vw,20px)}
+.checkbox-line{display:flex;align-items:center;gap:9px;font-size:clamp(17px,1.2vw,20px);color:#e5f2ff;font-weight:650}
+.checkbox-line input{width:23px;height:23px;accent-color:#73e1ed}
+.bottom{border-top:1px solid var(--line);background:rgba(6,18,32,.9)}
+.nav-left,.nav-right{display:flex;align-items:center;gap:12px}
+.nav-btn{border:1px solid rgba(171,217,248,.28);background:#142a43;color:var(--text);font-size:clamp(14px,1.05vw,18px);padding:12px 20px;border-radius:12px;font-weight:820;min-height:45px;white-space:nowrap}
+.nav-btn:hover:not(:disabled){background:#1c405c;border-color:var(--cyan)}
+.nav-btn.next{background:var(--cyan);color:#082331;border-color:var(--cyan)}
+.nav-btn.next:hover:not(:disabled){background:#a5f7fa}
+.slide-counter{font-weight:870;font-variant-numeric:tabular-nums;font-size:clamp(16px,1.2vw,20px);min-width:72px;text-align:center}
+.timebox{display:flex;align-items:center;gap:9px;font-variant-numeric:tabular-nums}
+.timer{color:var(--yellow);font-size:clamp(18px,1.35vw,23px);font-weight:900;letter-spacing:.035em;min-width:62px;text-align:center}
+.tiny{font-size:clamp(12px,1vw,15px);color:var(--muted)}
+.progress-track{position:absolute;height:4px;left:0;right:0;bottom:0;background:rgba(255,255,255,.10)}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#69e4ee,#b3a0ff);transition:width .28s}
+.notes{position:fixed;z-index:30;right:20px;bottom:90px;width:min(480px,calc(100vw - 40px));max-height:65vh;overflow:auto;background:#f6f8fc;color:#14263c;padding:22px 25px;border-radius:17px;box-shadow:0 20px 70px rgba(0,0,0,.58);border:3px solid var(--cyan)}
+.notes[hidden]{display:none}
+.notes h3{font-size:22px}.notes p{font-size:17px;line-height:1.5;color:#243b56}
+.footer-helper{font-size:13px;color:#95abc0}
+.svg-flow{width:100%;max-width:660px;max-height:330px;display:block;margin:auto}
+.illustration{width:100%;height:auto;max-height:300px}
+@media(max-width:1100px){.panels.four .panel{padding:12px 14px}.panels.four .panel p{font-size:17px;line-height:1.24;margin-bottom:3px}.panels.four .panel .rule{font-size:19px;margin:5px 0;padding:7px 11px}.panels.four .panel .answer-btn{padding:9px 13px;min-height:38px;font-size:15px}.panel{padding:17px}.panels.four{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-helper{display:none}.app{grid-template-rows:54px minmax(0,1fr) 69px} .slide{padding:17px 30px}}
+@media(max-width:680px){.app{grid-template-rows:50px minmax(0,1fr) 65px}.topbar,.bottom{padding:0 12px}.top-right .sectiontag{display:none}.slide{padding:22px 17px}.panels,.panels.three,.panels.four,.grid-test{grid-template-columns:1fr}.panel p,.panel li{font-size:18px}h1{font-size:50px}h2{font-size:38px}.nav-btn{padding:8px 11px;min-height:40px}.nav-left{gap:5px}.nav-right{gap:5px}.nav-btn.timer-toggle{display:none}.timebox .tiny{display:none}.slide-counter{min-width:53px}.brand{font-size:12px}.brandmark{width:25px;height:25px}.top-right{font-size:11px}}
+@media(max-height:720px) and (min-width:681px){.slide{padding-top:12px;padding-bottom:14px}.kicker{margin-bottom:7px}h2{margin-bottom:10px}.lead{margin-bottom:12px}.panels{margin-top:10px}.panel{padding:16px}.panel p{line-height:1.28}.callout{margin-top:8px;padding:9px 15px}.big-btn{padding:10px 17px;min-height:42px}.result{min-height:60px;padding:10px 14px}.rule{margin:8px 0;padding:10px 17px}.steps{margin:12px 0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* ===== Agregados para los repasos de Data Warehousing (mismo sistema visual) ===== */
+.brandmark.dw{font-size:12px;letter-spacing:-.02em}
+.top-right a,.nav-left a{color:var(--muted);text-decoration:none}
+.top-right a:hover,.nav-left a:hover{color:var(--cyan)}
+.pq{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;padding:8px 12px;border-radius:13px;border:1px dashed rgba(255,220,141,.55);background:rgba(255,220,141,.07);color:#ffedc1;font-size:clamp(13px,1vw,16px);font-weight:800}
+.pq .pq-label{letter-spacing:.13em;text-transform:uppercase;font-size:.78em;color:var(--yellow);font-weight:900}
+.pq button{border:1px solid rgba(255,220,141,.45);background:rgba(255,220,141,.12);color:#fff3d1;border-radius:999px;padding:4px 11px;font-weight:850;font-size:inherit;font-variant-numeric:tabular-nums}
+.pq button:hover{background:rgba(255,220,141,.3);border-color:var(--yellow)}
+.pq button.ok{background:#174b3a;border-color:var(--green);color:#a5f9c5}
+.pq button.ko{background:#512935;border-color:var(--red);color:#ffd0d0}
+table.cmp{width:100%;border-collapse:separate;border-spacing:0;margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:clamp(14px,1.18vw,19px)}
+table.cmp th,table.cmp td{padding:10px 15px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.36}
+table.cmp thead th{background:#123049;color:var(--cyan);font-size:.82em;letter-spacing:.08em;text-transform:uppercase;font-weight:900}
+table.cmp tbody th{color:#e6f1ff;font-weight:820;background:rgba(19,44,71,.6)}
+table.cmp td{color:#d6e5f3;background:rgba(11,30,49,.55)}
+table.cmp tr:last-child>*{border-bottom:0}
+table.cmp td b,table.cmp td strong{color:#fff}
+.flow{display:flex;align-items:stretch;gap:8px;margin:18px 0}
+.flow .node{flex:1 1 0;min-width:0;border:1px solid rgba(115,225,237,.38);background:var(--panel);border-radius:15px;padding:13px 15px}
+.flow .node b{display:block;color:var(--cyan);font-size:clamp(16px,1.35vw,22px);margin-bottom:5px;line-height:1.15}
+.flow .node span{font-size:clamp(13px,1.02vw,16.5px);color:#c9dbee;line-height:1.36;display:block}
+.flow .node span b,.flow .node span strong{display:inline;font-size:inherit;color:#fff;margin:0;line-height:inherit}
+.flow .node .n{font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:900;margin-bottom:4px;display:block}
+.flow .arrow{align-self:center;color:#7f9bb8;font-size:24px;font-weight:900;flex:0 0 auto}
+.flow .node.hl{border-color:rgba(255,220,141,.7);background:rgba(255,220,141,.08)}.flow .node.hl b{color:var(--yellow)}
+.flow .node.vio{border-color:rgba(194,169,255,.6);background:rgba(57,52,94,.5)}.flow .node.vio b{color:var(--violet)}
+.flow .node.grn{border-color:rgba(140,232,180,.55);background:rgba(24,70,53,.45)}.flow .node.grn b{color:var(--green)}
+.tag{display:inline-block;padding:2px 9px;border-radius:7px;font-size:.8em;font-weight:850;background:rgba(138,182,255,.16);color:var(--blue);margin:0 4px 4px 0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.panel ul{margin:4px 0 0;padding-left:1.15em}
+.panel li{margin-bottom:5px}
+.panel h3{color:#eaf4ff}
+.panel .big-number.sm{font-size:clamp(26px,2.5vw,40px)}
+.panels.tight .panel{padding:clamp(13px,1.3vw,20px)}
+.panels.tight .panel p,.panels.tight .panel li{font-size:clamp(15px,1.22vw,19.5px)}
+pre.code{font-size:clamp(14px,1.18vw,19px);line-height:1.5}
+pre.code .kw{color:var(--cyan);font-weight:800}pre.code .cm{color:#7f97b0;font-style:italic}pre.code .st{color:var(--yellow)}
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(12px,1.3vw,22px);align-items:start;margin-top:16px}
+.mini-table{width:100%;border-collapse:collapse;font-size:clamp(14px,1.1vw,18px)}
+.mini-table th,.mini-table td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+.mini-table th{background:#123049;color:var(--cyan);font-weight:850}
+.mini-table td{color:#d6e5f3}
+.k-pk{color:var(--yellow);font-weight:900}.k-fk{color:var(--violet);font-weight:900}
+.venn{width:100%;max-width:190px;height:auto;display:block;margin:0 auto 8px}
+.hier{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.hier .lvl{border:1px solid rgba(115,225,237,.38);background:var(--panel);border-radius:14px;padding:12px 16px;font-size:clamp(16px,1.3vw,21px)}
+.hier .lvl b{color:var(--cyan)}
+.hier .lvl:nth-child(2){margin-left:34px;border-color:rgba(138,182,255,.45)}
+.hier .lvl:nth-child(3){margin-left:68px;border-color:rgba(194,169,255,.5)}
+/* ===== Práctica ===== */
+.quiz{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:clamp(12px,1.3vw,22px);align-items:start}
+.q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.q-prompt{font-size:clamp(18px,1.55vw,25px);font-weight:700;line-height:1.38;margin-bottom:12px;color:#f4f8ff}
+.q-multi{color:var(--yellow);font-weight:850;font-size:clamp(14px,1.1vw,17px);margin:-4px 0 10px}
+.q-multi[hidden]{display:none}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;width:100%;border:1px solid rgba(115,225,237,.30);border-radius:14px;padding:10px 15px;background:rgba(28,69,95,.4);color:var(--text);font-size:clamp(15px,1.2vw,19.5px);font-weight:600;line-height:1.35;transition:background .15s,border-color .15s}
+.opt .letter{flex-shrink:0;width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#174360;font-weight:900;color:var(--cyan);font-size:15px}
+.opt:hover:not(:disabled){border-color:var(--cyan);background:#205574}
+.opt.sel{border-color:var(--cyan);background:#1d4d6b}.opt.sel .letter{background:var(--cyan);color:#092332}
+.opt.ok{border-color:rgba(140,232,180,.85);background:rgba(44,113,79,.38)}.opt.ok .letter{background:var(--green);color:#10243a}
+.opt.ko{border-color:rgba(255,154,154,.85);background:rgba(132,54,68,.38)}.opt.ko .letter{background:var(--red);color:#10243a}
+.opt:disabled{opacity:1;cursor:default}
+.q-dots{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:12px 0 4px}
+.dot{min-height:31px;border-radius:8px;border:1px solid var(--line);background:rgba(18,49,72,.6);color:#a9bdd3;font-size:12.5px;font-weight:850;padding:0;font-variant-numeric:tabular-nums}
+.dot:hover{border-color:var(--cyan)}
+.dot.cur{outline:2px solid var(--yellow);outline-offset:1px;color:#fff}
+.dot.ok{background:#174b3a;color:#a5f9c5;border-color:rgba(140,232,180,.6)}
+.dot.ko{background:#512935;color:#ffd0d0;border-color:rgba(255,154,154,.6)}
+.q-side .inline-note{font-size:14px;line-height:1.4;color:var(--muted)}
+.q-side .button-row{gap:8px}.q-side .subtle-btn{padding:8px 12px;min-height:38px}
+.q-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
+.q-legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.result .explain{font-size:clamp(14px,1.08vw,17px);color:#d0dfef}
+@media(max-width:1100px){.quiz{grid-template-columns:1fr}.flow{flex-wrap:wrap}.flow .arrow{display:none}.flow .node{flex:1 1 30%}.split{grid-template-columns:1fr}}
+@media(max-width:680px){.flow .node{flex:1 1 100%}table.cmp{font-size:14px}table.cmp th,table.cmp td{padding:7px 9px}}
+
+</style>
+<style>/* ajuste para celular: que el contenido no quede más ancho que la pantalla */
+.app{grid-template-columns:minmax(0,1fr)}
+@media(max-width:680px){.brand{min-width:0;overflow:hidden;text-overflow:ellipsis}#phaseLabel,.timebox{display:none}.top-right{flex-shrink:0}table.cmp{display:block;overflow-x:auto}}
+</style>
+</head>
+<body data-deck="c2">
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><span class="brandmark dw" aria-hidden="true">DW</span> Data Warehousing · Repaso para el parcial</div>
+    <div class="top-right"><span class="sectiontag">Curso 2 · Almacenamiento</span><span id="phaseLabel">Inicio</span><a href="index.html" title="Volver al índice">Índice</a></div>
+  </header>
+  <main class="stage" id="stage" aria-live="off">
+
+    <section class="slide active" data-phase="Inicio" data-note="Curso 2 es el núcleo de Data Warehousing: dónde guardar cada tipo de dato, cómo modelarlo en BigQuery y cómo gobernarlo.">
+      <div class="slide-inner narrow">
+
+        <p class="kicker">Data Warehousing · Curso 2 · Repaso de parcial</p>
+        <h1>Guardar bien para <span class="accent">analizar mejor.</span></h1>
+        <p class="lead big-lead">Administración y almacenamiento de datos en la nube: almacenes, modelado, gobierno, SQL y particiones.</p>
+        <div class="chip-row"><span class="chip">Warehouse · Lake · Lakehouse</span><span class="chip">Esquemas BigQuery</span><span class="chip">Claves</span><span class="chip">Normalización</span><span class="chip">Gobierno</span><span class="chip">Analytics Hub</span><span class="chip">Particiones</span><span class="chip">45 preguntas</span></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Tipos de datos" data-note="La forma del dato decide dónde conviene guardarlo: estructurado → base o almacén; todo mezclado y en formato nativo → lake; ambos con informes rápidos → lakehouse.">
+      <div class="slide-inner">
+
+        <p class="kicker">01 · La forma de los datos</p>
+        <h2>Estructurados, semiestructurados y no estructurados</h2>
+        <div class="panels three">
+          <div class="panel"><div class="big-number sm">Estructurados</div><p>Filas y columnas con un <b>esquema fijo</b>.</p><p class="small">Tablas de una base de datos, hojas de cálculo, transacciones.</p></div>
+          <div class="panel"><div class="big-number sm">Semiestructurados</div><p>Tienen etiquetas o claves, pero un esquema <b>flexible</b>.</p><p class="small">JSON, XML, registros (logs).</p></div>
+          <div class="panel"><div class="big-number sm">No estructurados</div><p>Sin un modelo predefinido.</p><p class="small">Imágenes, video, audio, PDF, texto libre, correos.</p></div>
+        </div>
+        <div class="callout">Pista de examen: «datos en sus <strong>formatos nativos</strong>» o «estructurados <strong>y</strong> no estructurados» → pensá en lake / lakehouse.</div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Formas de almacenar" data-note="Base de datos = fuente estructurada para grandes volúmenes. Sistema de registro = fuente oficial de datos críticos (clientes) protegida. Almacén = estructurado y accesible a varios departamentos. Data mart = subconjunto temático.">
+      <div class="slide-inner">
+
+        <p class="kicker">02 · Formas de almacenar</p>
+        <h2>¿Dónde se guardan los datos?</h2>
+        <table class="cmp">
+          <thead><tr><th>Opción</th><th>Qué es</th><th>Usala cuando…</th></tr></thead>
+          <tbody>
+            <tr><th>Base de datos</th><td>Datos estructurados para operaciones y transacciones del día a día.</td><td>Necesitás una fuente estructurada que maneje <b>grandes volúmenes</b>.</td></tr>
+            <tr><th>Sistema de registro</th><td>Fuente <b>oficial y autorizada</b> de un dato crítico (ej.: clientes).</td><td>Los datos son muy importantes y hay que <b>protegerlos de accesos no autorizados</b>.</td></tr>
+            <tr><th>Almacén de datos</th><td>Repositorio central de datos estructurados de muchas fuentes, para análisis.</td><td>Datos muy estructurados que usan <b>varios departamentos</b>.</td></tr>
+            <tr><th>Data mart</th><td><b>Subconjunto temático</b> de un almacén más grande (ventas, marketing…).</td><td>Un área necesita solo sus datos, rápido.</td></tr>
+            <tr><th>Data lake</th><td>Repositorio de datos crudos en su <b>formato nativo</b>, de cualquier tipo.</td><td>Querés guardar todo sin decidir aún cómo se usará.</td></tr>
+            <tr><th>Data lakehouse</th><td><b>Almacén de datos + data lake</b> en una sola arquitectura.</td><td>Mezcla de estructurados y no estructurados con informes rápidos.</td></tr>
+          </tbody>
+        </table>
+        <div class="pq" data-pq="32,21,22,82"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="32" title="Practicar la pregunta 32">#32</button><button type="button" data-goq="21" title="Practicar la pregunta 21">#21</button><button type="button" data-goq="22" title="Practicar la pregunta 22">#22</button><button type="button" data-goq="82" title="Practicar la pregunta 82">#82</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Warehouse vs lake" data-note="Lakehouse = warehouse + lake. E-commerce que guarda todo en formato nativo = data lake. Web + app, estructurados y no estructurados, informes rápidos = lakehouse.">
+      <div class="slide-inner">
+
+        <p class="kicker">03 · Comparación clave</p>
+        <h2>Warehouse, mart, lake y lakehouse</h2>
+        <table class="cmp">
+          <thead><tr><th></th><th>Almacén de datos</th><th>Data mart</th><th>Data lake</th><th>Data lakehouse</th></tr></thead>
+          <tbody>
+            <tr><th>Datos</th><td>Estructurados, procesados</td><td>Estructurados de <b>un tema</b></td><td>Todo tipo, crudo, formato nativo</td><td>Estructurados + no estructurados</td></tr>
+            <tr><th>Esquema</th><td>Definido al escribir</td><td>Heredado del almacén</td><td>Se aplica al leer</td><td>Flexible + gestión de tablas</td></tr>
+            <tr><th>Usuarios</th><td>BI, informes, SQL</td><td>Un departamento</td><td>Ciencia de datos, AA, exploración</td><td>BI y AA en la misma plataforma</td></tr>
+            <tr><th>Fortaleza</th><td>Consistencia y rendimiento</td><td>Simple y rápido</td><td>Bajo costo, flexibilidad</td><td>Lo mejor de ambos</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">Regla mental: <strong>lakehouse = warehouse + lake</strong>; <strong>mart ⊂ warehouse</strong>.</div>
+        <div class="pq" data-pq="24,94,95"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="24" title="Practicar la pregunta 24">#24</button><button type="button" data-goq="94" title="Practicar la pregunta 94">#94</button><button type="button" data-goq="95" title="Practicar la pregunta 95">#95</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Esquema BigQuery" data-note="Texto = STRING. Precios = número de punto flotante (FLOAT64). Detección automática: analiza una muestra representativa de cada campo.">
+      <div class="slide-inner">
+
+        <p class="kicker">04 · Esquema de tabla en BigQuery</p>
+        <h2>Columnas, tipos y modos</h2>
+        <div class="split">
+          <div class="panel">
+            <div class="panel-title">Tipos de datos más usados</div>
+            <table class="mini-table">
+              <tr><th>Tipo</th><th>Para…</th></tr>
+              <tr><td class="mono">STRING</td><td>texto (nombres, descripciones)</td></tr>
+              <tr><td class="mono">INT64</td><td>enteros (cantidades, IDs)</td></tr>
+              <tr><td class="mono">FLOAT64</td><td>punto flotante (precios, medidas)</td></tr>
+              <tr><td class="mono">NUMERIC</td><td>decimales exactos</td></tr>
+              <tr><td class="mono">BOOL</td><td>verdadero / falso</td></tr>
+              <tr><td class="mono">DATE · DATETIME · TIMESTAMP</td><td>fechas y horas</td></tr>
+              <tr><td class="mono">STRUCT · ARRAY</td><td>anidados y repetidos</td></tr>
+            </table>
+          </div>
+          <div class="panel">
+            <div class="panel-title">El esquema define nombre, tipo y modo</div>
+            <pre class="code mono"><span class="kw">CREATE</span> <span class="kw">TABLE</span> tienda.productos (
+  id     <span class="kw">INT64</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,  <span class="cm">-- REQUIRED</span>
+  nombre <span class="kw">STRING</span>,          <span class="cm">-- NULLABLE</span>
+  precio <span class="kw">FLOAT64</span>,
+  alta   <span class="kw">DATE</span>
+);</pre>
+            <p><b>Detección automática de esquema</b>: BigQuery analiza una <b>muestra representativa</b> de los datos de cada campo e infiere su tipo.</p>
+          </div>
+        </div>
+        <div class="pq" data-pq="25,85,36"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="25" title="Practicar la pregunta 25">#25</button><button type="button" data-goq="85" title="Practicar la pregunta 85">#85</button><button type="button" data-goq="36" title="Practicar la pregunta 36">#36</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Anidados y repetidos" data-note="Una columna con una lista de productos (nombre, descripción, precio) = ARRAY (de STRUCT). Modos: NULLABLE, REQUIRED, REPEATED.">
+      <div class="slide-inner">
+
+        <p class="kicker">05 · Datos anidados y repetidos</p>
+        <h2>STRUCT, ARRAY y modos</h2>
+        <div class="panels three tight">
+          <div class="panel"><h3>STRUCT / RECORD</h3><p>Grupo de campos <b>dentro</b> de una columna.</p><p class="small mono">cliente: STRUCT&lt;nombre, ciudad&gt;</p></div>
+          <div class="panel"><h3>ARRAY</h3><p><b>Lista</b> de valores del mismo tipo en una sola fila.</p><p class="small mono">productos: ARRAY&lt;STRUCT&lt;nombre, descripcion, precio&gt;&gt;</p></div>
+          <div class="panel"><h3>Modos</h3><p><span class="tag">NULLABLE</span> admite nulos (por defecto)<br><span class="tag">REQUIRED</span> obligatorio<br><span class="tag">REPEATED</span> es un array</p></div>
+        </div>
+        <div class="split">
+          <pre class="code mono"><span class="cm">-- un pedido con su lista de productos</span>
+<span class="kw">SELECT</span> pedido_id, p.nombre, p.precio
+<span class="kw">FROM</span> tienda.pedidos, <span class="kw">UNNEST</span>(productos) <span class="kw">AS</span> p;</pre>
+          <div class="callout" style="margin-top:12px">Anidar y repetir es una forma de <strong>desnormalizar</strong>: los datos relacionados viajan juntos y se evitan JOINs costosos.</div>
+        </div>
+        <div class="pq" data-pq="84"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="84" title="Practicar la pregunta 84">#84</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Claves" data-note="Clave externa: relaciona tablas (qué compró cada cliente; unir clientes, pedidos y suscripciones).">
+      <div class="slide-inner">
+
+        <p class="kicker">06 · Claves primarias y externas</p>
+        <h2>Cómo se relacionan las tablas</h2>
+        <div class="split">
+          <div class="panel">
+            <div class="panel-title">clientes</div>
+            <table class="mini-table"><tr><th class="k-pk">id_cliente (PK)</th><th>nombre</th></tr><tr><td>1</td><td>Ana</td></tr><tr><td>2</td><td>Bruno</td></tr></table>
+            <div class="panel-title" style="margin-top:14px">compras</div>
+            <table class="mini-table"><tr><th class="k-pk">id_compra (PK)</th><th class="k-fk">id_cliente (FK)</th><th>producto</th></tr><tr><td>10</td><td>1</td><td>Mate</td></tr><tr><td>11</td><td>1</td><td>Termo</td></tr><tr><td>12</td><td>2</td><td>Yerba</td></tr></table>
+          </div>
+          <div class="panel">
+            <p><span class="k-pk">Clave primaria</span>: identifica <b>de forma única</b> cada fila (no se repite, no es nula).</p>
+            <p><span class="k-fk">Clave externa</span>: columna que <b>referencia la clave primaria de otra tabla</b> → permite relacionar y unir tablas.</p>
+            <pre class="code mono"><span class="kw">SELECT</span> c.nombre, v.producto
+<span class="kw">FROM</span> tienda.clientes <span class="kw">AS</span> c
+<span class="kw">JOIN</span> tienda.compras <span class="kw">AS</span> v
+  <span class="kw">ON</span> v.id_cliente = c.id_cliente;</pre>
+          </div>
+        </div>
+        <div class="pq" data-pq="23,83"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="23" title="Practicar la pregunta 23">#23</button><button type="button" data-goq="83" title="Practicar la pregunta 83">#83</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Normalización" data-note="Normalizar = evitar duplicados e inconsistencias y facilitar actualizaciones. Desnormalizar = agregar columnas duplicadas en cada tabla; lecturas rápidas (detección de fraude en un gran flujo).">
+      <div class="slide-inner">
+
+        <p class="kicker">07 · Modelado</p>
+        <h2>Normalización vs desnormalización</h2>
+        <table class="cmp">
+          <thead><tr><th></th><th>Normalización</th><th>Desnormalización</th></tr></thead>
+          <tbody>
+            <tr><th>Idea</th><td>Dividir en tablas relacionadas por claves; cada dato en <b>un solo lugar</b>.</td><td>Combinar datos; <b>agregar columnas duplicadas</b> en cada tabla (o anidarlas).</td></tr>
+            <tr><th>Objetivo</th><td>Evitar <b>duplicados e inconsistencias</b>; facilitar actualizaciones.</td><td><b>Lecturas y consultas rápidas</b>, sin JOINs.</td></tr>
+            <tr><th>Costo</th><td>Consultas con más JOINs.</td><td>Más espacio; actualizar en varios lugares.</td></tr>
+            <tr><th>Uso típico</th><td>Sistemas transaccionales (OLTP).</td><td>Almacenes y análisis; <b>detectar fraude rápido</b> en un gran flujo.</td></tr>
+          </tbody>
+        </table>
+        <div class="pq" data-pq="26,88,89"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="26" title="Practicar la pregunta 26">#26</button><button type="button" data-goq="88" title="Practicar la pregunta 88">#88</button><button type="button" data-goq="89" title="Practicar la pregunta 89">#89</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Lotes vs transmisión" data-note="Transmisión = continuo, en tiempo real. Lotes = intervalos definidos o fragmentos grandes; ideal para datos históricos (entrenar AA). En el banco, la transmisión es «más adecuada para datos de diversas fuentes».">
+      <div class="slide-inner">
+
+        <p class="kicker">08 · Procesamiento</p>
+        <h2>Por lotes vs transmisión</h2>
+        <table class="cmp">
+          <thead><tr><th></th><th>Por lotes (batch)</th><th>Transmisión (streaming)</th></tr></thead>
+          <tbody>
+            <tr><th>Cómo</th><td>Procesa bloques de datos en <b>intervalos definidos</b> o fragmentos grandes.</td><td>Procesa datos <b>de forma continua</b>, apenas llegan.</td></tr>
+            <tr><th>Latencia</th><td>Minutos u horas.</td><td>Segundos: <b>tiempo real</b>.</td></tr>
+            <tr><th>Costo y complejidad</th><td>Más bajos, más simple.</td><td>Más altos.</td></tr>
+            <tr><th>Ideal para</th><td>Datos <b>históricos</b>, informes periódicos, entrenar modelos de AA.</td><td>Paneles en vivo, fraude, sensores; datos de <b>diversas fuentes</b> al mismo tiempo.</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">Pregunta clave para elegir: <strong>¿los datos son urgentes?</strong> (se profundiza en el Curso 3).</div>
+        <div class="pq" data-pq="6,86,87"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="6" title="Practicar la pregunta 6">#6</button><button type="button" data-goq="86" title="Practicar la pregunta 86">#86</button><button type="button" data-goq="87" title="Practicar la pregunta 87">#87</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Gobierno de datos" data-note="Modelo predictivo poco exacto → administración de calidad. Muchos duplicados → limpieza dentro del marco de datos maestros (MDM). La limpieza del MDM pertenece a la administración de calidad.">
+      <div class="slide-inner">
+
+        <p class="kicker">09 · Gobierno y administración</p>
+        <h2>Gobierno de datos</h2>
+        <div class="rule compact">Marco de <b>políticas, normas, roles y responsabilidades</b> para que los datos sean confiables, seguros y utilizables en toda la organización.</div>
+        <div class="panels four tight">
+          <div class="panel"><h3>Políticas y normas</h3><p>Reglas comunes sobre cómo se crean, usan y comparten los datos.</p></div>
+          <div class="panel"><h3>Administración y propiedad</h3><p>Quién es responsable de cada conjunto de datos.</p></div>
+          <div class="panel"><h3>Calidad de datos</h3><p>Exactitud, integridad y coherencia → modelos y análisis <b>exactos</b>. Incluye la <b>limpieza</b>.</p></div>
+          <div class="panel"><h3>Datos maestros (MDM)</h3><p>Una versión <b>única y confiable</b> de entidades clave (clientes, productos); se limpian duplicados.</p></div>
+        </div>
+        <div class="pq" data-pq="28,29,91"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="28" title="Practicar la pregunta 28">#28</button><button type="button" data-goq="29" title="Practicar la pregunta 29">#29</button><button type="button" data-goq="91" title="Practicar la pregunta 91">#91</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Catálogo y metadatos" data-note="Catálogo: visión completa para descubrir, comprender y usar activos. Metadatos empresariales: para que usuarios diversos encuentren y entiendan. Contexto de un dataset: examinar sus metadatos. Encontrar activos: herramientas adecuadas + entender el objetivo comercial.">
+      <div class="slide-inner">
+
+        <p class="kicker">10 · Catálogo de datos</p>
+        <h2>Encontrar y entender los datos</h2>
+        <div class="split">
+          <div class="panel">
+            <p>Un <b>catálogo de datos</b> es un inventario buscable de los activos de datos con sus <b>metadatos</b> (datos sobre los datos). Da una <b>visión completa</b> para descubrir, comprender y usar los activos, y ayuda a seguir su origen y transformación.</p>
+            <p class="small"><b>Knowledge Catalog / Dataplex</b> (Google Cloud): descubrimiento, metadatos y gobierno centralizados de datos repartidos en lakes, almacenes y marts.</p>
+            <div class="callout" style="margin-top:8px">Para encontrar y comprender activos hacen falta las <strong>herramientas adecuadas</strong> + entender el <strong>objetivo comercial</strong>.</div>
+          </div>
+          <table class="cmp" style="margin-top:0">
+            <thead><tr><th>Metadatos técnicos</th><th>Metadatos empresariales</th></tr></thead>
+            <tbody>
+              <tr><td>Esquema, tipos de datos, tamaño</td><td>Definiciones de negocio, glosario</td></tr>
+              <tr><td>Ubicación, formato, fechas de creación</td><td>Propietario, descripción, uso previsto</td></tr>
+              <tr><td>Para quien construye y mantiene</td><td>Para que <b>usuarios diversos</b> busquen y entiendan</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pq" data-pq="30,92,93,100,101"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="30" title="Practicar la pregunta 30">#30</button><button type="button" data-goq="92" title="Practicar la pregunta 92">#92</button><button type="button" data-goq="93" title="Practicar la pregunta 93">#93</button><button type="button" data-goq="100" title="Practicar la pregunta 100">#100</button><button type="button" data-goq="101" title="Practicar la pregunta 101">#101</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Linaje" data-note="Linaje = rastrear origen y movimiento a lo largo del ciclo de vida, para verificar la integridad de la fuente y confiar en ella.">
+      <div class="slide-inner">
+
+        <p class="kicker">11 · Linaje de datos</p>
+        <h2>¿De dónde viene este dato?</h2>
+        <div class="rule compact">El <span class="accent">linaje</span> registra el <b>origen</b> de los datos, sus <b>movimientos</b> y sus <b>transformaciones</b> a lo largo del ciclo de vida.</div>
+        <div class="flow">
+          <div class="node"><b>Fuente</b><span>CRM, app, sensores</span></div><div class="arrow">→</div>
+          <div class="node"><b>Ingesta</b><span>Carga al área intermedia</span></div><div class="arrow">→</div>
+          <div class="node"><b>Transformación</b><span>Limpieza, uniones, agregados</span></div><div class="arrow">→</div>
+          <div class="node"><b>Tabla del almacén</b><span>clientes_activos</span></div><div class="arrow">→</div>
+          <div class="node grn"><b>Uso</b><span>Panel o modelo de abandono</span></div>
+        </div>
+        <div class="panels three tight">
+          <div class="panel soft"><p><b>Confiar</b>: verificar la <b>integridad de la fuente</b>.</p></div>
+          <div class="panel soft"><p><b>Depurar</b>: encontrar en qué paso apareció un error.</p></div>
+          <div class="panel soft"><p><b>Impacto y cumplimiento</b>: saber qué se rompe si cambia una fuente.</p></div>
+        </div>
+        <div class="pq" data-pq="33,97"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="33" title="Practicar la pregunta 33">#33</button><button type="button" data-goq="97" title="Practicar la pregunta 97">#97</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Analytics Hub" data-note="Beneficio: compartir y usar datos de forma segura entre organizaciones. Descripción breve = listas (fichas). Al suscribirte recibís un conjunto de datos vinculado. Tipos de usuario del banco: publicador y visualizador.">
+      <div class="slide-inner">
+
+        <p class="kicker">12 · Analytics Hub (BigQuery)</p>
+        <h2>Compartir datos de forma segura</h2>
+        <div class="flow">
+          <div class="node hl"><b>Publicador</b><span>Comparte conjuntos de datos propios.</span></div><div class="arrow">→</div>
+          <div class="node"><b>Intercambio</b><span>Espacio donde se agrupan las listas.</span></div><div class="arrow">→</div>
+          <div class="node"><b>Lista</b><span><b>Descripción breve</b> del conjunto para decidir antes de usarlo.</span></div><div class="arrow">→</div>
+          <div class="node"><b>Suscriptor</b><span>Se suscribe a la lista.</span></div><div class="arrow">→</div>
+          <div class="node grn"><b>Conjunto vinculado</b><span>Lo que aparece en su proyecto, sin copiar los datos.</span></div>
+        </div>
+        <div class="panels tight">
+          <div class="panel"><h3>Para qué sirve</h3><p>Compartir y usar datos y análisis <b>de forma segura entre organizaciones</b>.</p></div>
+          <div class="panel"><h3>Roles</h3><p><span class="tag">Publicador</span><span class="tag">Suscriptor</span><span class="tag">Visualizador</span><span class="tag">Administrador</span></p><p class="small">El visualizador puede ver intercambios y listas.</p></div>
+        </div>
+        <div class="pq" data-pq="34,35,98,99"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="34" title="Practicar la pregunta 34">#34</button><button type="button" data-goq="35" title="Practicar la pregunta 35">#35</button><button type="button" data-goq="98" title="Practicar la pregunta 98">#98</button><button type="button" data-goq="99" title="Practicar la pregunta 99">#99</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="SQL básico" data-note="SELECT elige columnas e inicia la consulta; WHERE filtra por condición. Un script reutilizado que falla con herramientas nuevas: dialecto de SQL diferente. BigQuery permite búsquedas basadas en texto, incluso en JSON.">
+      <div class="slide-inner">
+
+        <p class="kicker">13 · SQL básico</p>
+        <h2>Las cinco cláusulas</h2>
+        <div class="split">
+          <pre class="code mono"><span class="kw">SELECT</span> ciudad, <span class="kw">COUNT</span>(*) <span class="kw">AS</span> clientes  <span class="cm">-- columnas</span>
+<span class="kw">FROM</span> tienda.clientes                 <span class="cm">-- tabla</span>
+<span class="kw">WHERE</span> pais = <span class="st">'UY'</span>                    <span class="cm">-- filtra filas</span>
+<span class="kw">GROUP BY</span> ciudad                      <span class="cm">-- agrupa</span>
+<span class="kw">ORDER BY</span> clientes <span class="kw">DESC</span>               <span class="cm">-- ordena</span>
+<span class="kw">LIMIT</span> 10;</pre>
+          <div class="panel">
+            <ul>
+              <li><span class="tag">SELECT</span> inicia la consulta y elige columnas.</li>
+              <li><span class="tag">FROM</span> de qué tabla.</li>
+              <li><span class="tag">WHERE</span> solo las filas que cumplen una <b>condición</b>.</li>
+              <li><span class="tag">GROUP BY</span> agrupa para agregar (COUNT, SUM, AVG).</li>
+              <li><span class="tag">ORDER BY</span> ordena el resultado.</li>
+            </ul>
+            <p class="small">Cada herramienta puede usar un <b>dialecto</b> de SQL distinto (BigQuery usa GoogleSQL). BigQuery también permite <b>búsquedas basadas en texto</b>, por ejemplo dentro de JSON.</p>
+          </div>
+        </div>
+        <div class="pq" data-pq="37,103,102,31"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="37" title="Practicar la pregunta 37">#37</button><button type="button" data-goq="103" title="Practicar la pregunta 103">#103</button><button type="button" data-goq="102" title="Practicar la pregunta 102">#102</button><button type="button" data-goq="31" title="Practicar la pregunta 31">#31</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Particionamiento" data-note="Evitar punto único de fallo = dividir en múltiples servidores. Según el uso dentro del sistema = funcional. Tráfico desigual = rebalancear. Reducción = consultar solo particiones relevantes.">
+      <div class="slide-inner">
+
+        <p class="kicker">14 · Particionamiento</p>
+        <h2>Dividir para consultar menos</h2>
+        <div class="panels three tight">
+          <div class="panel"><h3>Horizontal</h3><p>Por <b>filas</b>: mismas columnas, distintas filas (ej.: por año), repartidas en múltiples servidores.</p></div>
+          <div class="panel"><h3>Vertical</h3><p>Por <b>columnas</b>: columnas de uso frecuente separadas de las demás.</p></div>
+          <div class="panel"><h3>Funcional</h3><p>Según el <b>uso de los datos</b> dentro del sistema (ventas, inventario…).</p></div>
+        </div>
+        <div class="split">
+          <div class="panel soft"><div class="panel-title">En BigQuery y buenas prácticas</div><ul><li>Por <b>columna de fecha/hora</b>, por <b>tiempo de ingesta</b> o por <b>rango de enteros</b>.</li><li>Repartir en varios servidores evita un <b>punto único de fallo</b>.</li><li><b>Reducción</b>: consultar <b>solo las particiones necesarias</b>.</li><li>Tráfico desigual → <b>volver a equilibrar</b> particiones.</li></ul></div>
+          <pre class="code mono"><span class="kw">CREATE</span> <span class="kw">TABLE</span> ventas.pedidos
+<span class="kw">PARTITION BY</span> <span class="kw">DATE</span>(fecha) <span class="kw">AS</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> crudo.pedidos;
+
+<span class="kw">SELECT</span> <span class="kw">SUM</span>(monto) <span class="kw">FROM</span> ventas.pedidos
+<span class="kw">WHERE</span> <span class="kw">DATE</span>(fecha) = <span class="st">'2026-10-01'</span>;  <span class="cm">-- lee 1 partición</span></pre>
+        </div>
+        <div class="pq" data-pq="39,40,106,107"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="39" title="Practicar la pregunta 39">#39</button><button type="button" data-goq="40" title="Practicar la pregunta 40">#40</button><button type="button" data-goq="106" title="Practicar la pregunta 106">#106</button><button type="button" data-goq="107" title="Practicar la pregunta 107">#107</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Dataproc y AA" data-note="Dataproc: código abierto (Spark/Hadoop) para lotes, consultas, transmisión y AA. Tipos comunes de AA: regresión lineal y clasificación. Recomendar productos = ranking. Biblioteca de código como interfaz a datos externos = SDK.">
+      <div class="slide-inner">
+
+        <p class="kicker">15 · Procesamiento y aprendizaje automático</p>
+        <h2>Dataproc y AA en BigQuery</h2>
+        <div class="panels tight">
+          <div class="panel"><h3>Dataproc</h3><p>Servicio administrado para <b>Apache Spark y Hadoop</b> (código abierto): procesamiento por lotes, consultas, transmisión y AA sin administrar clústeres a mano.</p><p class="small"><b>SDK</b> (kit de desarrollo de software): biblioteca de código que funciona como interfaz para acceder a datos o servicios externos.</p></div>
+          <div class="panel"><h3>BigQuery ML</h3><p>Crear y usar modelos de AA <b>con SQL</b>, donde ya están los datos.</p>
+            <pre class="code mono"><span class="kw">CREATE</span> <span class="kw">MODEL</span> tienda.m_ventas
+<span class="kw">OPTIONS</span>(model_type=<span class="st">'linear_reg'</span>) <span class="kw">AS</span>
+<span class="kw">SELECT</span> precio, promo, ventas <span class="kw">AS</span> label
+<span class="kw">FROM</span> tienda.historico;</pre></div>
+        </div>
+        <div class="panels four tight">
+          <div class="panel soft"><h3>Regresión lineal</h3><p>Predice un <b>número</b>.</p></div>
+          <div class="panel soft"><h3>Clasificación</h3><p>Predice una <b>categoría</b> (¿abandona?).</p></div>
+          <div class="panel soft"><h3>Ranking</h3><p>Ordena ítems → <b>recomendaciones</b>.</p></div>
+          <div class="panel soft"><h3>Agrupamiento</h3><p>Segmentos sin etiqueta previa.</p></div>
+        </div>
+        <div class="pq" data-pq="78,38,104,105"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="78" title="Practicar la pregunta 78">#78</button><button type="button" data-goq="38" title="Practicar la pregunta 38">#38</button><button type="button" data-goq="104" title="Practicar la pregunta 104">#104</button><button type="button" data-goq="105" title="Practicar la pregunta 105">#105</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Práctica" data-note="Respondé sin mirar las diapositivas. Después usá «Repasar falladas» hasta llegar a cero errores. Las preguntas marcadas «Seleccioná dos respuestas» tienen dos opciones correctas.">
+      <div class="slide-inner narrow centered">
+
+        <p class="kicker">Práctica · banco de preguntas · curso 2</p>
+        <h2>Ahora, <span class="accent">a practicar.</span></h2>
+        <p class="lead">45 preguntas del banco relacionadas con este curso, con el texto original y su explicación.</p>
+        <div class="panels three">
+          <div class="panel"><div class="big-number">45</div><h3>Preguntas</h3><p class="small">Ordenadas por número del banco.</p></div>
+          <div class="panel"><div class="big-number">1 clic</div><h3>Respondés y ves</h3><p class="small">Correcta / incorrecta + explicación al instante.</p></div>
+          <div class="panel"><div class="big-number">A–E</div><h3>Teclado</h3><p class="small">Letras para responder · ← → para moverte entre preguntas.</p></div>
+        </div>
+        <div class="button-row" style="justify-content:center"><button type="button" class="big-btn primary" id="startQuiz">Empezar práctica →</button></div>
+        <p class="inline-note" style="margin-top:12px">Preguntas: 6, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 78, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107</p>
+      </div>
+    </section>
+    <section class="slide" id="quizSlide" data-phase="Práctica" data-note="Atajos: A–E o 1–5 para responder, ← → para cambiar de pregunta, Inicio/Fin para ir a la primera o última diapositiva. El progreso se guarda en este navegador.">
+      <div class="slide-inner">
+
+        <div class="quiz">
+          <div class="panel q-main">
+            <div class="q-head"><span class="scenario-number" id="qNum" style="margin:0">PREGUNTA</span><span class="tiny" id="qPos"></span></div>
+            <p class="q-prompt" id="qPrompt"></p>
+            <p class="q-multi" id="qMulti" hidden>Seleccioná dos respuestas.</p>
+            <div class="opts" id="qOpts"></div>
+            <div class="result unknown" id="qFeedback"><div class="result-icon">?</div><div><div class="result-text">Elegí una opción.</div><div class="explain">La explicación aparece al responder.</div></div></div>
+            <div class="button-row"><button type="button" class="nav-btn" id="qPrev">← Anterior</button><button type="button" class="nav-btn next" id="qNext">Siguiente pregunta →</button></div>
+          </div>
+          <aside class="panel soft q-side">
+            <div class="panel-title">Tu puntaje</div>
+            <div class="big-number" id="qScore">0 / 0</div>
+            <p class="small" id="qScoreSub" style="margin:6px 0 0">0 de 45 respondidas</p>
+            <div class="q-dots" id="qDots"></div>
+            <div class="q-legend"><span><i style="background:#174b3a"></i>bien</span><span><i style="background:#512935"></i>mal</span><span><i style="background:rgba(18,49,72,.9);border:1px solid #36516b"></i>sin responder</span></div>
+            <div class="button-row"><button type="button" class="subtle-btn" id="qWrong">Repasar falladas</button><button type="button" class="subtle-btn" id="qShuffle">Mezclar</button><button type="button" class="subtle-btn" id="qReset">Reiniciar</button></div>
+            <p class="inline-note" id="qMode" style="margin-top:10px">Modo: todas las preguntas, en orden.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="bottom">
+    <div class="nav-left">
+      <span class="slide-counter" id="slideCounter" aria-live="polite">1 / 18</span>
+      <button class="subtle-btn" type="button" id="notesToggle" title="Clave para el parcial (N)" aria-expanded="false">Clave</button>
+    </div>
+    <div class="timebox"><span class="tiny">Práctica</span><span class="timer" id="scoreDisplay" aria-label="Puntaje de la práctica">0 / 0</span></div>
+    <div class="nav-right"><span class="footer-helper">← → avanzar · F pantalla completa</span><button class="nav-btn" type="button" id="prevBtn">← Atrás</button><button class="nav-btn next" type="button" id="nextBtn">Siguiente →</button></div>
+    <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+  </footer>
+  <aside id="teacherNotes" class="notes" role="complementary" hidden><h3>Clave para el parcial</h3><p id="notesText"></p><p style="font-size:14px;color:#516987">Ocultar: tecla N o botón «Clave».</p></aside>
+</div>
+<script type="application/json" id="qdata">[{"n": 6, "prompt": "¿Cuál es la diferencia entre la transferencia de transmisión y la transferencia por lotes?", "options": [{"id": "a", "text": "La transferencia de transmisión procesa los datos en intervalos previamente definidos o en fragmentos más grandes, mientras que la transferencia por lotes implica el procesamiento de datos continuo en tiempo real."}, {"id": "b", "text": "La transferencia de transmisión y por lotes implican el procesamiento continuo de datos en tiempo real, pero procesan distintos tipos de datos."}, {"id": "c", "text": "La transferencia de transmisión y por lotes procesan datos en intervalos previamente definidos o en fragmentos más grandes, pero los transforman de distintas maneras."}, {"id": "d", "text": "La transferencia de transmisión implica el procesamiento continuo de datos en tiempo real, mientras que la transferencia por lotes procesa datos en intervalos previamente definidos o en fragmentos más grandes."}], "correct": ["d"], "explanation": "Transmisión = procesamiento continuo en tiempo real. Lotes = intervalos definidos o fragmentos más grandes."}, {"n": 21, "prompt": "Un analista de datos que trabaja para una empresa necesita almacenar información sobre los datos demográficos, el historial de compras y las preferencias de productos de los clientes. Estos datos son muy importantes para la empresa y deben protegerse de accesos no autorizados. ¿Qué tipo de almacenamiento de datos sería el más adecuado para esta situación?", "options": [{"id": "a", "text": "Sistema de registro"}, {"id": "b", "text": "Almacenamiento directo"}, {"id": "c", "text": "Almacenamiento basado en la red"}, {"id": "d", "text": "Registros de datos en la nube"}], "correct": ["a"], "explanation": "Los datos críticos de clientes se guardan en un sistema de registro: la fuente autorizada y controlada."}, {"n": 22, "prompt": "Un analista de datos que trabaja para una empresa de venta minorista necesita almacenar información sobre los datos demográficos, el historial de compras y las preferencias de productos de los clientes. Estos datos están muy estructurados y deben ser accesibles para los empleados de diferentes departamentos. ¿Qué tipo de almacenamiento de datos sería el más adecuado para esta situación?", "options": [{"id": "a", "text": "Base de datos relacional"}, {"id": "b", "text": "Data lake"}, {"id": "c", "text": "Almacén de datos"}, {"id": "d", "text": "Data mart"}], "correct": ["c"], "explanation": "Datos muy estructurados y accesibles para varios departamentos encajan en un almacén de datos."}, {"n": 23, "prompt": "Un comercio guarda los datos en un par de tablas. La tabla de clientes contiene el nombre, el ID y la dirección del cliente. La tabla de compras contiene el número de pedido, el ID del producto y la cantidad comprada. Se le pide a un analista de datos que identifique qué productos compró cada cliente. ¿Qué tipo de clave debe crear el analista de datos entre las tablas?", "options": [{"id": "a", "text": "Clave primaria"}, {"id": "b", "text": "Clave alternativa"}, {"id": "c", "text": "Clave única"}, {"id": "d", "text": "Clave externa"}], "correct": ["d"], "explanation": "La clave externa vincula la tabla de compras con la de clientes."}, {"n": 24, "prompt": "Una empresa de venta minorista necesita almacenar y analizar los datos de su sitio web y su aplicación para dispositivos móviles. Estos datos incluyen grandes cantidades de datos estructurados y no estructurados. La empresa necesita poder acceder rápida y fácilmente a estos datos para generar informes. ¿Cuál de los siguientes tipos de arquitectura de datos es el más adecuado para esta situación?", "options": [{"id": "a", "text": "Almacén de datos"}, {"id": "b", "text": "Data mart"}, {"id": "c", "text": "Data lakehouse"}, {"id": "d", "text": "Data lake"}], "correct": ["c"], "explanation": "Un data lakehouse combina datos estructurados y no estructurados con acceso rápido para informes."}, {"n": 25, "prompt": "Un analista de datos está creando un esquema de tablas para una tabla de BigQuery. El analista quiere crear una columna que almacenará los datos de texto. ¿Cuál de los siguientes tipos de datos debería usar el analista?", "options": [{"id": "a", "text": "DATETIME"}, {"id": "b", "text": "FLOAT"}, {"id": "c", "text": "INTEGER"}, {"id": "d", "text": "STRING"}], "correct": ["d"], "explanation": "Los datos de texto se almacenan como STRING en BigQuery."}, {"n": 26, "prompt": "Eres un analista de datos en una empresa de deportes que desarrolló una aplicación de entrenamiento deportivo. Tu empresa tiene el nuevo objetivo comercial de ofrecer a sus clientes la opción de compartir su tiempo de actividad con la empresa. Necesitas almacenar estos datos nuevos de tiempo de actividad en una tabla nueva. ¿Cuál de las siguientes opciones es la mejor forma de desnormalizar los datos?", "options": [{"id": "a", "text": "Crear tablas de resumen con totales estandarizados"}, {"id": "b", "text": "Dividir cada tabla en otras más pequeñas"}, {"id": "c", "text": "Agregar columnas duplicadas en cada tabla"}, {"id": "d", "text": "Replicar tablas para quitar el formato de datos"}], "correct": ["c"], "explanation": "Desnormalizar es agregar columnas duplicadas para evitar uniones y acelerar las consultas."}, {"n": 28, "prompt": "Un analista de datos en una empresa de transmisión de medios de comunicación trabaja en un proyecto para mejorar la exactitud de un modelo predictivo. El rendimiento del modelo no es tan bueno como se esperaba. ¿Cuál de las siguientes prácticas de administración de datos podría implementar el analista para mejorar la exactitud del modelo?", "options": [{"id": "a", "text": "Políticas y normas de datos"}, {"id": "b", "text": "Administración de calidad de los datos"}, {"id": "c", "text": "Administración y propiedad de los datos"}, {"id": "d", "text": "Seguridad y privacidad de los datos"}], "correct": ["b"], "explanation": "La administración de la calidad de los datos mejora la exactitud de los datos que alimentan el modelo."}, {"n": 29, "prompt": "Eres un analista de datos en una empresa de construcción que trabaja en un proyecto para mejorar la calidad de los datos de la empresa. Tienes la tarea de identificar y resolver problemas de calidad de datos. Observas que hay una gran cantidad de registros duplicados en la base de datos de la empresa. ¿Cuál de las siguientes prácticas recomendadas para la calidad de los datos soluciona el problema?", "options": [{"id": "a", "text": "Implementar un proceso de enriquecimiento de datos como reemplazo del marco para la administración de datos maestros"}, {"id": "b", "text": "Iniciar el desarrollo de un nuevo marco para la administración de datos maestros"}, {"id": "c", "text": "Implementar un proceso de limpieza de datos dentro del marco para la administración de datos maestros."}, {"id": "d", "text": "Iniciar el desarrollo de una nueva política de administración de datos"}], "correct": ["c"], "explanation": "La limpieza de datos dentro del marco de administración de datos maestros (MDM) elimina los duplicados."}, {"n": 30, "prompt": "Eres un científico de datos que compila un modelo para un desarrollador de apps de teléfonos. Tu proyecto actual es el desarrollo de un modelo que predice el momento en que los clientes dejan de usar la app. ¿Qué puedes crear para ayudarte a hacer un seguimiento del origen y la transformación de tus datos?", "options": [{"id": "a", "text": "Un motor de búsqueda"}, {"id": "b", "text": "Un catálogo de datos"}, {"id": "c", "text": "Una hoja de cálculo"}, {"id": "d", "text": "Una base de datos"}], "correct": ["b"], "explanation": "Un catálogo de datos permite hacer seguimiento del origen, la transformación y los metadatos."}, {"n": 31, "prompt": "Un profesional de datos está usando BigQuery como herramienta en su proyecto de datos. Aplica las capacidades de búsqueda de BigQuery para encontrar elementos de datos únicos en un archivo JSON. ¿Cómo ayuda BigQuery al analista de datos a encontrar lo que necesita?", "options": [{"id": "a", "text": "Le permite almacenar la búsqueda."}, {"id": "b", "text": "Le permite usar búsquedas almacenadas de proyectos anteriores."}, {"id": "c", "text": "Le permite realizar búsquedas basadas en texto."}, {"id": "d", "text": "Le permite hacer búsquedas manuales."}], "correct": ["c"], "explanation": "BigQuery permite realizar búsquedas basadas en texto."}, {"n": 32, "prompt": "Un profesional de datos está trabajando en un proyecto. Una de las fuentes de datos tiene un formato estructurado y puede administrar grandes volúmenes de datos. ¿Qué tipo de fuente de datos está usando este profesional de datos?", "options": [{"id": "a", "text": "Excel"}, {"id": "b", "text": "APIs"}, {"id": "c", "text": "Bases de datos"}, {"id": "d", "text": "Archivos"}], "correct": ["c"], "explanation": "Las bases de datos son una fuente estructurada que maneja grandes volúmenes."}, {"n": 33, "prompt": "Un analista de datos en la nube está trabajando en un proyecto de datos. Quiere asegurarse de la integridad de su fuente de datos. ¿Qué puede hacer para confiar en la integridad de la fuente de datos?", "options": [{"id": "a", "text": "Puede rastrear el origen y el movimiento del ciclo de vida de la fuente de datos."}, {"id": "b", "text": "Puede verificar el historial de compra de la fuente de datos."}, {"id": "c", "text": "Puede crear una consulta de validación para la fuente de datos."}, {"id": "d", "text": "Puede verificar el certificado de origen de la fuente de datos."}], "correct": ["a"], "explanation": "Rastrear el origen y el movimiento del ciclo de vida de la fuente permite confiar en su integridad."}, {"n": 34, "prompt": "¿Cuál es el beneficio de usar BigQuery Analytics Hub en una organización?", "options": [{"id": "a", "text": "Ofrece un conjunto de datos seguro listo para usar en análisis con un procesamiento mínimo."}, {"id": "b", "text": "Ofrece una manera de crear un vínculo de red entre los equipos de datos de la organización."}, {"id": "c", "text": "Ofrece un proceso seguro para compartir y usar datos entre organizaciones."}, {"id": "d", "text": "Ofrece una manera de analizar y procesar datos entre organizaciones sin cargo."}], "correct": ["c"], "explanation": "Analytics Hub permite compartir y usar datos entre organizaciones de forma segura."}, {"n": 35, "prompt": "Un profesional de datos está buscando en Analytics Hub para encontrar los datos que necesita. ¿Qué usa para encontrar una descripción breve del conjunto de datos antes de decidirse a usarlo?", "options": [{"id": "a", "text": "Conjunto de datos vinculado"}, {"id": "b", "text": "Listas de conjuntos de datos"}, {"id": "c", "text": "Conjunto de datos compartido"}, {"id": "d", "text": "Intercambio de datos"}], "correct": ["b"], "explanation": "Las listas (listings) de conjuntos de datos muestran una descripción breve antes de suscribirse."}, {"n": 36, "prompt": "Un equipo de datos está creando un esquema de base de datos para un proyecto. Decide usar la opción de esquema de detección automática en BigQuery. ¿Cómo se establece el tipo de campo con el esquema de detección automática?", "options": [{"id": "a", "text": "Asignando los tipos a los campos de forma aleatoria"}, {"id": "b", "text": "Pidiendo a los usuarios que ingresen los tipos de campo manualmente"}, {"id": "c", "text": "Analizando una muestra representativa de los datos en cada campo"}, {"id": "d", "text": "Usando plantillas predefinidas"}], "correct": ["c"], "explanation": "La detección automática analiza una muestra representativa de cada campo para inferir el tipo."}, {"n": 37, "prompt": "¿Qué palabra clave de SQL se utiliza para iniciar una consulta y seleccionar columnas de una tabla?", "options": [{"id": "a", "text": "FROM"}, {"id": "b", "text": "ORDER BY"}, {"id": "c", "text": "WHERE"}, {"id": "d", "text": "SELECT"}], "correct": ["d"], "explanation": "SELECT inicia la consulta y elige las columnas."}, {"n": 38, "prompt": "Un equipo de datos en la nube está trabajando con aprendizaje automático. Sus integrantes están tratando de enseñarle al sistema a establecer un patrón para recomendar productos a los clientes en función de sus preferencias. ¿Qué tipo de modelo está usando el equipo en su algoritmo de aprendizaje automático?", "options": [{"id": "a", "text": "Clasificación"}, {"id": "b", "text": "Regresión lineal"}, {"id": "c", "text": "Ranking"}, {"id": "d", "text": "Agrupamiento en clústeres"}], "correct": ["c"], "explanation": "Recomendar productos según preferencias implica ordenar los más relevantes: un modelo de ranking."}, {"n": 39, "prompt": "Un analista de datos en la nube está particionando una base de datos para evitar un punto único de fallo. ¿Cómo ayuda la partición de bases de datos a que el analista de datos logre su objetivo?", "options": [{"id": "a", "text": "Garantizando el rendimiento continuo"}, {"id": "b", "text": "Dividiendo los datos en múltiples servidores"}, {"id": "c", "text": "Aumentando la eficacia del servicio"}, {"id": "d", "text": "Evitando la redundancia de datos"}], "correct": ["b"], "explanation": "Particionar divide los datos en múltiples servidores, evitando un único punto de fallo."}, {"n": 40, "prompt": "Un equipo de datos está particionando una base de datos. Divide los datos en segmentos de acuerdo con el uso de dichos datos dentro del sistema de bases de datos. ¿Qué estrategia de partición está usando el equipo de datos?", "options": [{"id": "a", "text": "Funcional"}, {"id": "b", "text": "Horizontal"}, {"id": "c", "text": "Vertical"}, {"id": "d", "text": "De segmentación"}], "correct": ["a"], "explanation": "La partición funcional divide los datos según su uso dentro del sistema."}, {"n": 78, "prompt": "Una organización sin fines de lucro necesita ayuda con el análisis a gran escala tanto en datos estructurados y no estructurados. La organización desea usar una herramienta de código abierto para procesamiento por lotes, consultas, transmisión y aprendizaje automático. ¿Qué herramienta de análisis de datos debería usar la organización sin fines de lucro?", "options": [{"id": "a", "text": "Dataflow"}, {"id": "b", "text": "Looker"}, {"id": "c", "text": "Dataproc"}, {"id": "d", "text": "BigQuery"}], "correct": ["c"], "explanation": "Dataproc es la herramienta de código abierto (Spark/Hadoop) para lotes, consultas, transmisión y aprendizaje automático."}, {"n": 82, "prompt": "Un profesional de la nube accede a los datos contenidos en una base de datos temática que es un subconjunto de un almacenamiento de datos mayor. ¿Qué tipo de herramienta de almacenamiento de datos utilizó el profesional de la nube?", "options": [{"id": "a", "text": "Base de datos relacional"}, {"id": "b", "text": "Un data mart"}, {"id": "c", "text": "Almacén de datos"}, {"id": "d", "text": "Un data lake"}], "correct": ["b"], "explanation": "Un data mart es un subconjunto temático de un almacén de datos mayor."}, {"n": 83, "prompt": "Un científico de datos trabaja en un proyecto para predecir la deserción de clientes. Quieren combinar los datos de la tabla de clientes, la tabla de pedidos y la tabla de suscripciones para obtener una imagen completa de la relación de cada cliente con la empresa. ¿Qué tipo de clave utilizará el científico de datos para conectar estas tablas?", "options": [{"id": "a", "text": "Clave única"}, {"id": "b", "text": "Clave primaria"}, {"id": "c", "text": "Clave externa"}, {"id": "d", "text": "Nueva clave"}], "correct": ["c"], "explanation": "Una clave externa conecta tablas relacionadas."}, {"n": 84, "prompt": "Un analista de datos de una empresa de venta minorista desarrolla un nuevo almacén de datos para almacenar datos de productos. El almacén de datos necesitará almacenar una lista de los productos que vende la empresa, incluyendo el nombre, la descripción y el precio de cada producto. ¿Qué tipo de datos es apropiado para la columna que almacenará la lista de productos?", "options": [{"id": "a", "text": "Struct"}, {"id": "b", "text": "Cadena"}, {"id": "c", "text": "Array"}, {"id": "d", "text": "Número entero"}], "correct": ["c"], "explanation": "Una lista de elementos se almacena como ARRAY."}, {"n": 85, "prompt": "Un analista de datos de una empresa de venta minorista desarrolla un nuevo almacén de datos para almacenar y analizar información del sitio web y los sistemas de punto de venta de la empresa. El analista es responsable de elegir los tipos de datos adecuados para las columnas de las tablas del almacén de datos. ¿Qué tipo de datos es adecuado para la columna que almacena los precios de los productos?", "options": [{"id": "a", "text": "Booleano"}, {"id": "b", "text": "Número de punto flotante"}, {"id": "c", "text": "Número entero"}, {"id": "d", "text": "Cadena"}], "correct": ["b"], "explanation": "Los precios son valores decimales: número de punto flotante."}, {"n": 86, "prompt": "Un científico de datos de una empresa de atención médica está desarrollando un nuevo modelo de aprendizaje automático para predecir la deserción de pacientes. El modelo se entrenará con un conjunto de datos históricos de pacientes, como sus datos demográficos y su antecedente médico. ¿Qué tipo de tratamiento de datos sería el más adecuado para este proyecto?", "options": [{"id": "a", "text": "Transmisión"}, {"id": "b", "text": "Por lotes"}, {"id": "c", "text": "Array"}, {"id": "d", "text": "Booleano"}], "correct": ["b"], "explanation": "Datos históricos para entrenar un modelo se procesan por lotes."}, {"n": 87, "prompt": "Un equipo de datos de una empresa de redes sociales está desarrollando un nuevo panel para hacer un seguimiento de la participación de los usuarios. El panel utilizará procesamiento de transmisión. ¿Por qué el equipo de datos opta por el procesamiento de transmisión?", "options": [{"id": "a", "text": "Es adecuado para procesar datos procedentes de una única fuente de datos."}, {"id": "b", "text": "Es menos complejo de implementar que el procesamiento por lotes."}, {"id": "c", "text": "Es menos eficiente que el procesamiento por lotes para grandes volúmenes de datos."}, {"id": "d", "text": "Es más adecuado para procesar datos procedentes de diversas fuentes."}], "correct": ["d"], "explanation": "El procesamiento de transmisión es más adecuado para datos de diversas fuentes que llegan de forma continua."}, {"n": 88, "prompt": "Un analista de datos trabaja en un nuevo proyecto para desarrollar un sistema que permita detectar rápidamente las transacciones fraudulentas. El sistema tendrá que procesar un gran flujo de datos de transacciones, como el ID del cliente, el ID del producto, el importe de la compra y la hora de la compra. De las siguientes técnicas de modelado de datos, ¿cuál es la más apropiada para este sistema de detección?", "options": [{"id": "a", "text": "Desnormalización del modelado de datos"}, {"id": "b", "text": "Tablas divididas"}, {"id": "c", "text": "Normalización del modelado de datos"}, {"id": "d", "text": "Tablas duplicadas"}], "correct": ["a"], "explanation": "La desnormalización reduce uniones y acelera la lectura de grandes flujos de transacciones."}, {"n": 89, "prompt": "De las siguientes técnicas de modelado de datos, ¿cuál permite a los analistas evitar el duplicado y la inconsistencia de datos, a la vez que facilita la actualización de la información?", "options": [{"id": "a", "text": "Normalización del modelado de datos"}, {"id": "b", "text": "Desnormalización del modelado de datos"}, {"id": "c", "text": "Tablas divididas"}, {"id": "d", "text": "Tablas duplicadas"}], "correct": ["a"], "explanation": "La normalización evita duplicados e inconsistencias y facilita actualizar la información."}, {"n": 91, "prompt": "Un equipo de datos que trabaja en una organización que utiliza la administración de datos maestros (MDM) está en proceso de limpiar sus datos. ¿A qué componente del framework de la MDM pertenece el proceso de limpieza?", "options": [{"id": "a", "text": "Integración de datos"}, {"id": "b", "text": "Administración de datos"}, {"id": "c", "text": "Administración de calidad de los datos"}, {"id": "d", "text": "Administración de datos"}], "correct": ["c"], "explanation": "La limpieza de datos pertenece a la administración de la calidad de los datos dentro de MDM."}, {"n": 92, "prompt": "Un equipo de especialistas de marketing de una empresa de venta minorista dispone de un enorme conjunto de datos de clientes. Para ayudarlos a trabajar con estos datos, utilizan un catálogo de datos. ¿Cuál es la ventaja de utilizar un catálogo de datos para el equipo de especialistas de marketing?", "options": [{"id": "a", "text": "Proporciona una visualización de los datos disponibles, lo que permite al equipo presentar las conclusiones de los datos a las partes interesadas."}, {"id": "b", "text": "Esto ayuda al equipo de datos a limitar la cantidad de metadatos para mejorar la eficiencia de los analistas de datos."}, {"id": "c", "text": "Proporciona una visión completa de los datos disponibles, lo que permite al equipo descubrir, comprender y utilizar los activos de datos."}, {"id": "d", "text": "Ayuda al equipo de datos a limitar el nivel de visibilidad y accesibilidad de los datos para mejorar la seguridad."}], "correct": ["c"], "explanation": "Un catálogo da una visión completa de los datos para descubrirlos, comprenderlos y usarlos."}, {"n": 93, "prompt": "Un ingeniero de software está desarrollando un almacén de datos para su empresa. El ingeniero necesita almacenar y gestionar un gran volumen de datos de distintas fuentes, incluidos datos de clientes, datos de productos y datos financieros. Los datos deben ser fácilmente accesibles, permitir búsquedas y responder a las necesidades de los distintos usuarios de la empresa. ¿Qué tipo de metadatos serían más importantes para esta tarea?", "options": [{"id": "a", "text": "Metadatos técnicos"}, {"id": "b", "text": "Metadatos de cliente"}, {"id": "c", "text": "Metadatos de usuarios"}, {"id": "d", "text": "Metadatos empresariales"}], "correct": ["d"], "explanation": "Los metadatos empresariales hacen que los datos sean comprensibles y fáciles de buscar para el negocio."}, {"n": 94, "prompt": "Una empresa de comercio electrónico está generando un gran volumen de datos a partir de su sitio web y su aplicación para dispositivos móviles, incluidas opiniones sobre productos, transacciones de clientes y publicaciones en redes sociales. La empresa necesita diseñar una arquitectura de datos que le permita almacenar, procesar y analizar todos estos datos en sus formatos nativos. ¿Cuál de las siguientes arquitecturas de datos satisface las necesidades de la empresa?", "options": [{"id": "a", "text": "Arquitectura de data lake"}, {"id": "b", "text": "Arquitectura de bases de datos relacionales"}, {"id": "c", "text": "Arquitectura de data lakehouse"}, {"id": "d", "text": "Arquitectura de almacén de datos"}], "correct": ["a"], "explanation": "Un data lake almacena datos en sus formatos nativos."}, {"n": 95, "prompt": "¿Cuáles son los dos tipos de arquitecturas de datos que combina la arquitectura data lakehouse?", "options": [{"id": "a", "text": "Data lakes y base de datos NoSQL"}, {"id": "b", "text": "Almacenes de datos y data lake"}, {"id": "c", "text": "Almacén de datos y base de datos NoSQL"}, {"id": "d", "text": "Base de datos relacional y bases de datos NoSQL"}], "correct": ["b"], "explanation": "El data lakehouse combina almacenes de datos y data lakes."}, {"n": 97, "prompt": "Un analista de datos de la nube trabaja para comprender el movimiento del ciclo de vida de una fuente de datos y cómo se transformó con el tiempo. ¿Por qué hace esto el analista de datos en la nube?", "options": [{"id": "a", "text": "Para verificar el formato de la fuente de datos."}, {"id": "b", "text": "Para verificar el acceso de los usuarios a la fuente de datos."}, {"id": "c", "text": "Para verificar la coherencia de los datos en la fuente de datos."}, {"id": "d", "text": "Para verificar la integridad de la fuente de datos."}], "correct": ["d"], "explanation": "Seguir el origen y la transformación sirve para verificar la integridad de la fuente."}, {"n": 98, "prompt": "¿Cuáles de los siguientes son tipos de usuarios en la plataforma Analytics Hub? Selecciona dos respuestas.", "options": [{"id": "a", "text": "Publicador"}, {"id": "b", "text": "Analista"}, {"id": "c", "text": "Arquitecto de datos"}, {"id": "d", "text": "Parte interesada"}, {"id": "e", "text": "Visualizador"}], "correct": ["a", "e"], "explanation": "En Analytics Hub los tipos de usuario incluyen publicadores y visualizadores."}, {"n": 99, "prompt": "Un analista de datos de la nube utiliza Analytics Hub. Busca un conjunto de datos que pueda utilizar en su proyecto. Se suscribe al conjunto de datos. ¿Cómo se denomina la versión del conjunto de datos que recibió el analista de datos en la nube?", "options": [{"id": "a", "text": "Conjunto de datos vinculado"}, {"id": "b", "text": "Intercambio de datos"}, {"id": "c", "text": "Conjunto de datos compartido"}, {"id": "d", "text": "Fichas"}], "correct": ["a"], "explanation": "Al suscribirse se recibe un conjunto de datos vinculado."}, {"n": 100, "prompt": "El equipo de datos está en proceso de encontrar y comprender los activos de datos. ¿Qué necesita el equipo para que este proceso funcione bien?", "options": [{"id": "a", "text": "Acceso de administrador a la nube y espacio de almacenamiento suficiente"}, {"id": "b", "text": "Un gran conjunto de datos y un gran equipo de analistas de datos"}, {"id": "c", "text": "Un equipo de científicos de datos, conjuntos de datos y tiempo suficiente."}, {"id": "d", "text": "Las herramientas adecuadas y la comprensión del objetivo comercial"}], "correct": ["d"], "explanation": "Hacen falta las herramientas adecuadas y entender el objetivo comercial."}, {"n": 101, "prompt": "Un analista de datos de la nube está trabajando en un proyecto y necesita más información sobre un conjunto de datos. Usando herramientas en la nube, ¿qué puede hacer el analista para identificar el contexto que rodea a un conjunto de datos?", "options": [{"id": "a", "text": "Compartir los datos"}, {"id": "b", "text": "Examinar los metadatos"}, {"id": "c", "text": "Limpiar los datos"}, {"id": "d", "text": "Borrar datos"}], "correct": ["b"], "explanation": "Los metadatos dan el contexto de un conjunto de datos."}, {"n": 102, "prompt": "Una organización renueva su equipo de datos en la nube, contrata personal nuevo y cambia sus herramientas de análisis de datos. Un analista de datos en la nube del equipo reutiliza una secuencia de comandos de SQL para actualizar un informe de datos. La secuencia de comandos de SQL incluye un grupo de comandos de SQL, y algunos de estos comandos no están funcionando correctamente. ¿Por qué los comandos de SQL no funcionan correctamente?", "options": [{"id": "a", "text": "Las nuevas herramientas de análisis de datos usan un dialecto de SQL diferente."}, {"id": "b", "text": "La secuencia de comandos de SQL fue alterada y se ingresaron errores."}, {"id": "c", "text": "El analista de datos en la nube estaba trabajando con un conjunto de datos distinto."}, {"id": "d", "text": "La secuencia de comandos de SQL se usó demasiadas veces."}], "correct": ["a"], "explanation": "Las nuevas herramientas pueden usar un dialecto de SQL diferente."}, {"n": 103, "prompt": "Un analista de datos en la nube está creando una instrucción de SQL. Quiere SELECT (seleccionar) algunas columnas de una tabla, pero solo si se cumple una condición. ¿Qué comando de SQL debe usar para establecer esta condición?", "options": [{"id": "a", "text": "SELECT"}, {"id": "b", "text": "WHERE"}, {"id": "c", "text": "CREATE"}, {"id": "d", "text": "FROM"}], "correct": ["b"], "explanation": "WHERE establece la condición de filtrado."}, {"n": 104, "prompt": "A un analista de datos en la nube se le asigna la tarea de crear un modelo de aprendizaje automático (AA). Como parte del proceso, debe seleccionar el modelo que usará para analizar los datos. ¿Cuáles son dos de los tipos de modelos comunes que el analista puede crear con aprendizaje automático?", "options": [{"id": "a", "text": "Aclaración"}, {"id": "b", "text": "Regresión de histograma"}, {"id": "c", "text": "Regresión lineal"}, {"id": "d", "text": "Clasificación"}, {"id": "e", "text": "Sistema de respaldo de línea"}], "correct": ["c", "d"], "explanation": "Entre los tipos comunes de modelos de AA están la regresión lineal y la clasificación."}, {"n": 105, "prompt": "Un analista de datos en la nube está trabajando en un modelo de aprendizaje automático (AA). Solicita acceso a la fuente de datos de una organización externa. La organización externa le otorga acceso a la fuente de datos, y el analista de datos en la nube usa una biblioteca de código de una herramienta de compilación como una interfaz para acceder a los datos. ¿Qué tipo de interfaz usó el analista de datos en la nube para acceder a los datos?", "options": [{"id": "a", "text": "Interfaces de programación de aplicaciones"}, {"id": "b", "text": "Credenciales de acceso"}, {"id": "c", "text": "Secuencia de comandos de programación"}, {"id": "d", "text": "Kit de desarrollo de software"}], "correct": ["d"], "explanation": "Un kit de desarrollo de software (SDK) es una biblioteca de código usada como interfaz."}, {"n": 106, "prompt": "Un analista de datos en la nube está trabajando con una base de datos particionada. La base de datos tiene una distribución de tráfico desigual debido a un aumento de datos. ¿Qué debe hacer el analista de datos en la nube para solucionar este problema?", "options": [{"id": "a", "text": "Deshacer la partición"}, {"id": "b", "text": "Borrar una partición"}, {"id": "c", "text": "Crear dos particiones"}, {"id": "d", "text": "Volver a equilibrar las particiones"}], "correct": ["d"], "explanation": "Volver a equilibrar las particiones corrige la distribución desigual."}, {"n": 107, "prompt": "Un analista de datos en la nube está trabajando en una tabla particionada. Utilizan un proceso llamado reducción de particiones. ¿Qué está haciendo el analista de datos en la nube?", "options": [{"id": "a", "text": "Validando que todas las particiones tengan el mismo tamaño."}, {"id": "b", "text": "Realizando una consulta en todas las particiones en busca de información relevante."}, {"id": "c", "text": "Realizando consultas solo en las particiones que tienen información relevante"}, {"id": "d", "text": "Validando qué particiones necesita usar en su consulta."}], "correct": ["c"], "explanation": "La reducción de particiones consulta solo las particiones que tienen información relevante."}]</script>
+<script>
+(function(){
+'use strict';
+const slides=Array.from(document.querySelectorAll('.slide'));
+const $=id=>document.getElementById(id);
+let current=0;
+function showSlide(i){if(i<0||i>=slides.length)return;slides[current].classList.remove('active');current=i;const s=slides[i];s.classList.add('active');s.scrollTop=0;$('slideCounter').textContent=(i+1)+' / '+slides.length;$('phaseLabel').textContent=s.dataset.phase||'Repaso';$('progressFill').style.width=((i+1)/slides.length*100)+'%';$('prevBtn').disabled=(i===0);$('nextBtn').disabled=(i===slides.length-1);$('nextBtn').textContent=i===slides.length-1?'Fin del repaso ✓':'Siguiente →';closeNotes();if(location.hash!=='#'+(i+1))history.replaceState(null,'','#'+(i+1));}
+function closeNotes(){$('teacherNotes').hidden=true;$('notesToggle').setAttribute('aria-expanded','false')}
+function toggleNotes(){const wasHidden=$('teacherNotes').hidden;$('teacherNotes').hidden=!wasHidden;$('notesToggle').setAttribute('aria-expanded',String(wasHidden));$('notesText').textContent=slides[current].dataset.note||'Sin notas para esta diapositiva.';}
+$('nextBtn').addEventListener('click',()=>showSlide(current+1));
+$('prevBtn').addEventListener('click',()=>showSlide(current-1));
+$('notesToggle').addEventListener('click',toggleNotes);
+
+/* ---------- Práctica ---------- */
+const QS=JSON.parse($('qdata').textContent);
+const KEY='dw-practica-'+document.body.dataset.deck;
+const quizIndex=slides.indexOf($('quizSlide'));
+let state=QS.map(()=>({sel:[],done:false,ok:false}));
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&saved.length===QS.length)state=saved;}catch(err){}
+let order=QS.map((_,i)=>i),pos=0,mode='Modo: todas las preguntas, en orden.';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(err){}};
+function updateScore(){const answered=state.filter(s=>s.done).length,ok=state.filter(s=>s.ok).length;$('qScore').textContent=ok+' / '+answered;$('qScoreSub').textContent=answered+' de '+QS.length+' respondidas'+(answered?' · '+Math.round(ok/answered*100)+'% de acierto':'');$('scoreDisplay').textContent=ok+' / '+answered;$('qWrong').disabled=!state.some(s=>s.done&&!s.ok);
+  document.querySelectorAll('.pq button').forEach(b=>{const k=QS.findIndex(q=>q.n===Number(b.dataset.goq));b.classList.toggle('ok',k>=0&&state[k].done&&state[k].ok);b.classList.toggle('ko',k>=0&&state[k].done&&!state[k].ok)});}
+function letter(id){return id.toUpperCase()}
+function renderQ(){
+  const i=order[pos],q=QS[i],st=state[i],multi=q.correct.length>1;
+  $('qNum').textContent='PREGUNTA '+q.n+' DEL BANCO';
+  $('qPos').textContent=(pos+1)+' / '+order.length;
+  $('qPrompt').textContent=q.prompt;
+  $('qMulti').hidden=!multi||/dos respuestas/i.test(q.prompt);
+  const box=$('qOpts');box.innerHTML='';
+  q.options.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='opt';b.dataset.id=o.id;b.innerHTML='<span class="letter"></span><span class="otext"></span>';b.querySelector('.letter').textContent=letter(o.id);b.querySelector('.otext').textContent=o.text;
+    if(st.sel.includes(o.id))b.classList.add('sel');
+    if(st.done){b.disabled=true;b.classList.remove('sel');if(q.correct.includes(o.id))b.classList.add('ok');else if(st.sel.includes(o.id))b.classList.add('ko');}
+    b.addEventListener('click',()=>choose(o.id));box.appendChild(b)});
+  const fb=$('qFeedback');
+  if(st.done){const right=q.correct.map(letter).join(' y ');fb.className='result '+(st.ok?'good':'bad');fb.innerHTML='<div class="result-icon">'+(st.ok?'✓':'×')+'</div><div><div class="result-text"></div><div class="explain"></div></div>';fb.querySelector('.result-text').textContent=st.ok?'¡Correcto!':'Incorrecto · '+(multi?'las correctas son ':'la correcta es ')+right;fb.querySelector('.explain').textContent=q.explanation;}
+  else{fb.className='result unknown';fb.innerHTML='<div class="result-icon">?</div><div><div class="result-text"></div><div class="explain">La explicación aparece al responder.</div></div>';fb.querySelector('.result-text').textContent=multi?('Elegí dos opciones ('+st.sel.length+'/2).'):'Elegí una opción.';}
+  $('qPrev').disabled=pos===0;$('qNext').disabled=pos===order.length-1;
+  const dots=$('qDots');dots.innerHTML='';
+  QS.forEach((qq,k)=>{const d=document.createElement('button');d.type='button';d.className='dot'+(state[k].done?(state[k].ok?' ok':' ko'):'')+(k===i?' cur':'');d.textContent=qq.n;d.title='Pregunta '+qq.n;d.addEventListener('click',()=>goQuestion(qq.n));dots.appendChild(d)});
+  $('qMode').textContent=mode;
+  updateScore();
+}
+function choose(id){const i=order[pos],q=QS[i],st=state[i];if(st.done)return;
+  if(q.correct.length===1){st.sel=[id]}else{st.sel=st.sel.includes(id)?st.sel.filter(x=>x!==id):st.sel.concat(id)}
+  if(st.sel.length===q.correct.length){st.done=true;st.ok=st.sel.every(x=>q.correct.includes(x));save();}
+  renderQ();}
+function goQuestion(n){let k=QS.findIndex(q=>q.n===n);if(k<0)return;if(!order.includes(k)){order=QS.map((_,i)=>i);mode='Modo: todas las preguntas, en orden.'}pos=order.indexOf(k);renderQ();if(current!==quizIndex)showSlide(quizIndex);}
+function move(d){const p=pos+d;if(p<0||p>=order.length)return false;pos=p;renderQ();return true}
+$('qPrev').addEventListener('click',()=>move(-1));
+$('qNext').addEventListener('click',()=>move(1));
+$('qWrong').addEventListener('click',()=>{const w=QS.map((_,i)=>i).filter(i=>state[i].done&&!state[i].ok);if(!w.length)return;w.forEach(i=>state[i]={sel:[],done:false,ok:false});order=w;pos=0;mode='Modo: repasando '+w.length+' pregunta(s) falladas.';save();renderQ()});
+$('qShuffle').addEventListener('click',()=>{order=QS.map((_,i)=>i);for(let k=order.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[order[k],order[j]]=[order[j],order[k]]}pos=0;mode='Modo: todas las preguntas, orden aleatorio.';renderQ()});
+$('qReset').addEventListener('click',()=>{state=QS.map(()=>({sel:[],done:false,ok:false}));order=QS.map((_,i)=>i);pos=0;mode='Modo: todas las preguntas, en orden.';save();renderQ()});
+$('startQuiz').addEventListener('click',()=>{const k=state.findIndex(s=>!s.done);order=QS.map((_,i)=>i);pos=k<0?0:k;renderQ();showSlide(quizIndex)});
+document.querySelectorAll('[data-goq]').forEach(b=>b.addEventListener('click',()=>goQuestion(Number(b.dataset.goq))));
+
+document.addEventListener('keydown',ev=>{
+  const el=document.activeElement;const editing=el && ['INPUT','TEXTAREA','SELECT'].includes(el.tagName);
+  if(editing && !['Escape'].includes(ev.key))return;
+  if(ev.ctrlKey||ev.metaKey||ev.altKey)return;
+  const inQuiz=current===quizIndex;
+  const k=ev.key.toLowerCase();
+  if(inQuiz && /^[a-e1-5]$/.test(k)){const i=order[pos],q=QS[i];const idx=/[1-5]/.test(k)?Number(k)-1:k.charCodeAt(0)-97;if(q.options[idx]){ev.preventDefault();choose(q.options[idx].id)}return}
+  if(ev.key==='ArrowRight'||(ev.key===' ' && el===document.body)){ev.preventDefault();if(!(inQuiz&&move(1)))showSlide(current+1)}
+  else if(ev.key==='ArrowLeft'){ev.preventDefault();if(!(inQuiz&&move(-1)))showSlide(current-1)}
+  else if(ev.key==='Home'){ev.preventDefault();showSlide(0)}
+  else if(ev.key==='End'){ev.preventDefault();showSlide(slides.length-1)}
+  else if(k==='f'){ev.preventDefault();if(document.fullscreenElement){document.exitFullscreen?.()}else{document.getElementById('app').requestFullscreen?.().catch(()=>{})}}
+  else if(k==='n'){ev.preventDefault();toggleNotes()}
+  else if(ev.key==='Escape'){closeNotes()}
+});
+renderQ();
+const start=parseInt(location.hash.slice(1),10);
+showSlide(start>=1&&start<=slides.length?start-1:0);
+})();
+</script>
+<script src="lectura.js" defer></script>
+</body>
+</html>

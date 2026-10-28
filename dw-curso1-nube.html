@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es-UY">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Curso 1 · La nube y el análisis de datos · Data Warehousing</title>
+<style>
+:root{--bg:#081322;--bg2:#0c1d32;--panel:#10243a;--panel2:#132c47;--line:rgba(177,216,249,.20);--text:#f4f8ff;--muted:#b5c8de;--cyan:#73e1ed;--blue:#8ab6ff;--green:#8ce8b4;--red:#ff9a9a;--yellow:#ffdc8d;--violet:#c2a9ff;--radius:20px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
+button,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid var(--yellow);outline-offset:4px}
+button:disabled{opacity:.35;cursor:not-allowed}
+.app{height:100vh;height:100dvh;display:grid;grid-template-rows:64px minmax(0,1fr) 77px;background:radial-gradient(circle at 92% 9%,rgba(41,91,161,.24),transparent 34%),radial-gradient(circle at 7% 88%,rgba(23,124,141,.12),transparent 33%),linear-gradient(142deg,#07111e,#0b1a2d 62%,#071220)}
+.topbar,.bottom{display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,3vw,56px);gap:16px}
+.topbar{border-bottom:1px solid var(--line);background:rgba(8,19,34,.5)}
+.brand{display:flex;align-items:center;gap:12px;font-size:clamp(13px,1.12vw,17px);font-weight:780;letter-spacing:.01em;white-space:nowrap}
+.brandmark{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#092132;font-weight:900;font-size:16px}
+.top-right{display:flex;align-items:center;gap:16px;white-space:nowrap;color:var(--muted);font-size:clamp(12px,1vw,15px)}
+.sectiontag{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:850}
+.stage{position:relative;min-height:0;overflow:hidden}
+.slide{display:none;position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:clamp(16px,2.5vh,32px) clamp(28px,5vw,92px) clamp(18px,3vh,36px);scrollbar-color:#36516b transparent}
+.slide.active{display:flex;align-items:center;justify-content:center}
+.slide-inner{width:100%;max-width:1530px;margin:auto}
+.slide-inner.narrow{max-width:1200px}
+.kicker{color:var(--cyan);font-size:clamp(12px,1.05vw,18px);font-weight:850;letter-spacing:.17em;text-transform:uppercase;margin:0 0 12px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(54px,6.1vw,102px);letter-spacing:-.065em;line-height:.98;margin-bottom:25px;font-weight:860;max-width:1070px}
+h2{font-size:clamp(37px,4.25vw,68px);letter-spacing:-.056em;line-height:1.07;margin-bottom:18px;font-weight:830}
+h3{font-size:clamp(20px,1.8vw,29px);line-height:1.18;margin-bottom:12px}
+.lead{font-size:clamp(20px,2vw,32px);line-height:1.42;color:var(--muted);max-width:1120px;margin-bottom:24px}
+.big-lead{font-size:clamp(23px,2.5vw,40px);line-height:1.38;max-width:1060px}
+.accent{color:var(--cyan)}.accent-alt{color:var(--yellow)}
+.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.chip{border:1px solid rgba(115,225,237,.32);color:#c8f8ff;border-radius:999px;background:rgba(115,225,237,.09);font-size:clamp(13px,1.08vw,17px);font-weight:780;padding:10px 16px}
+.panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.3vw,22px);align-items:stretch;margin-top:20px}
+.panels.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panels.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.panel{border:1px solid var(--line);background:linear-gradient(160deg,rgba(20,47,72,.88),rgba(11,30,49,.92));border-radius:var(--radius);padding:clamp(17px,1.85vw,30px);min-width:0;box-shadow:0 14px 32px rgba(0,0,0,.10)}
+.panel.soft{background:rgba(21,44,66,.58)}
+.panel-title{font-size:clamp(15px,1.25vw,21px);font-weight:800;margin-bottom:12px;color:#d9e9fb}
+.panel p,.panel li{font-size:clamp(17px,1.45vw,23px);line-height:1.42;color:#d6e5f3;margin-bottom:8px}
+.panel .small{font-size:clamp(14px,1.1vw,17px);color:var(--muted)}
+.big-number{font-size:clamp(36px,3.9vw,66px);font-weight:850;line-height:1;color:var(--cyan)}
+.question{font-size:clamp(21px,2.25vw,37px);font-weight:690;line-height:1.34;margin-bottom:14px}
+.statement{font-size:clamp(22px,2.1vw,35px);font-weight:750;line-height:1.36}
+.rule{border:1px solid rgba(115,225,237,.38);background:rgba(50,116,144,.14);border-radius:16px;padding:16px 21px;font-size:clamp(20px,2.0vw,32px);font-weight:800;line-height:1.45;letter-spacing:-.02em;margin:14px 0}
+.rule.compact{font-size:clamp(18px,1.7vw,28px)}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;letter-spacing:-.025em}
+.callout{background:rgba(255,220,141,.09);border-left:4px solid var(--yellow);padding:14px 22px;border-radius:0 13px 13px 0;font-size:clamp(17px,1.5vw,24px);line-height:1.4;color:#ffedc1;margin-top:18px}
+.centered{text-align:center}.centered .lead{margin-left:auto;margin-right:auto}.centered .chip-row{justify-content:center}
+.big-btn,.answer-btn,.choice-btn,.subtle-btn{border:1px solid rgba(115,225,237,.36);border-radius:15px;padding:13px 20px;color:var(--text);background:#174360;font-weight:790;font-size:clamp(16px,1.28vw,20px);transition:background .16s,border-color .16s,transform .16s;min-height:48px}
+.big-btn:hover,.answer-btn:hover,.choice-btn:hover,.subtle-btn:hover{background:#205574;border-color:var(--cyan)}
+.big-btn:active,.choice-btn:active{transform:translateY(1px)}
+.big-btn.primary{background:var(--cyan);color:#092332;border-color:var(--cyan)}
+.big-btn.primary:hover{background:#a3f5f7}
+.answer-btn{background:rgba(28,69,95,.4)}
+.choice-btn.selected{color:#092332;background:var(--cyan);border-color:var(--cyan)}
+.subtle-btn{background:rgba(18,49,72,.55);font-size:clamp(14px,1.08vw,17px);padding:10px 15px}
+.button-row{display:flex;flex-wrap:wrap;gap:13px;align-items:center;margin-top:17px}
+.inline-note{font-size:clamp(14px,1.08vw,17px);line-height:1.4;color:var(--muted)}
+.switchbox{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:14px;background:rgba(9,27,47,.73);padding:14px 18px;font-size:clamp(17px,1.32vw,23px);font-weight:760;margin:8px 0}
+.switchbox button{flex-shrink:0;min-width:90px;border:1px solid rgba(255,255,255,.25);background:#293a4c;border-radius:12px;color:#d3dce8;padding:10px 12px;font-size:clamp(16px,1.3vw,22px);font-weight:850}
+.switchbox button.is-on{border-color:var(--green);background:#174b3a;color:#a5f9c5}
+.switchbox button.is-off{border-color:rgba(255,154,154,.4);color:#ffd0d0}
+.result{display:flex;gap:16px;align-items:center;border-radius:15px;padding:17px 20px;margin-top:14px;min-height:75px;background:rgba(63,85,111,.22);border:1px solid var(--line)}
+.result.good{border-color:rgba(140,232,180,.55);background:rgba(44,113,79,.20)}
+.result.bad{border-color:rgba(255,154,154,.5);background:rgba(132,54,68,.20)}
+.result.unknown{color:var(--muted)}
+.result .result-icon{font-size:clamp(26px,2.8vw,45px);font-weight:900}
+.result .result-text{font-size:clamp(18px,1.55vw,27px);font-weight:790;line-height:1.25}
+.result .explain{font-size:clamp(14px,1.1vw,17px);color:var(--muted);font-weight:480;margin-top:5px}
+.steps{counter-reset:step;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.step{opacity:.27;transition:opacity .2s,border-color .2s;border:1px solid var(--line);background:var(--panel);border-radius:15px;padding:16px 20px;display:flex;align-items:center;gap:18px;font-size:clamp(17px,1.55vw,25px);min-height:72px}
+.step.visible{opacity:1;border-color:rgba(115,225,237,.42)}
+.step-index{font-size:clamp(22px,2.1vw,34px);font-weight:850;color:var(--cyan)}
+.scenario-number{font-size:clamp(12px,.95vw,16px);font-weight:900;color:var(--cyan);letter-spacing:.13em;margin-bottom:9px}
+.truth-bit{display:inline-flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-weight:850;color:#10243a;border-radius:7px;width:38px;height:38px;font-size:23px;background:var(--green)}
+.truth-bit.false{background:var(--red)}
+.hint{color:var(--muted);font-size:clamp(15px,1.18vw,20px);line-height:1.4}
+.hidden-answer[hidden],.model-solution[hidden]{display:none !important}
+.hidden-answer{padding:13px 16px;background:rgba(140,232,180,.08);border:1px solid rgba(140,232,180,.3);border-radius:12px;color:#d5ffe7;margin-top:14px;font-size:clamp(16px,1.3vw,21px);line-height:1.45}
+.grid-test{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.test-card{padding:15px 18px;border-radius:14px;background:rgba(10,32,52,.79);border:1px solid var(--line)}
+.test-card .case-values{font-family:ui-monospace,monospace;font-size:clamp(17px,1.3vw,22px);line-height:1.45;color:#e2efff}
+.test-feedback{margin-top:7px;color:var(--yellow);font-weight:800;font-size:clamp(15px,1.2vw,20px)}
+pre.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#081321;border:1px solid rgba(138,182,255,.30);border-radius:15px;color:#d7eaff;padding:18px 23px;font-size:clamp(17px,1.45vw,23px);line-height:1.52;margin:12px 0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.editor-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:12px 0}
+select{color:var(--text);border:1px solid rgba(115,225,237,.45);border-radius:12px;background:#153a55;padding:10px 14px;min-width:120px;font-weight:800;font-size:clamp(16px,1.2vw,20px)}
+.checkbox-line{display:flex;align-items:center;gap:9px;font-size:clamp(17px,1.2vw,20px);color:#e5f2ff;font-weight:650}
+.checkbox-line input{width:23px;height:23px;accent-color:#73e1ed}
+.bottom{border-top:1px solid var(--line);background:rgba(6,18,32,.9)}
+.nav-left,.nav-right{display:flex;align-items:center;gap:12px}
+.nav-btn{border:1px solid rgba(171,217,248,.28);background:#142a43;color:var(--text);font-size:clamp(14px,1.05vw,18px);padding:12px 20px;border-radius:12px;font-weight:820;min-height:45px;white-space:nowrap}
+.nav-btn:hover:not(:disabled){background:#1c405c;border-color:var(--cyan)}
+.nav-btn.next{background:var(--cyan);color:#082331;border-color:var(--cyan)}
+.nav-btn.next:hover:not(:disabled){background:#a5f7fa}
+.slide-counter{font-weight:870;font-variant-numeric:tabular-nums;font-size:clamp(16px,1.2vw,20px);min-width:72px;text-align:center}
+.timebox{display:flex;align-items:center;gap:9px;font-variant-numeric:tabular-nums}
+.timer{color:var(--yellow);font-size:clamp(18px,1.35vw,23px);font-weight:900;letter-spacing:.035em;min-width:62px;text-align:center}
+.tiny{font-size:clamp(12px,1vw,15px);color:var(--muted)}
+.progress-track{position:absolute;height:4px;left:0;right:0;bottom:0;background:rgba(255,255,255,.10)}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#69e4ee,#b3a0ff);transition:width .28s}
+.notes{position:fixed;z-index:30;right:20px;bottom:90px;width:min(480px,calc(100vw - 40px));max-height:65vh;overflow:auto;background:#f6f8fc;color:#14263c;padding:22px 25px;border-radius:17px;box-shadow:0 20px 70px rgba(0,0,0,.58);border:3px solid var(--cyan)}
+.notes[hidden]{display:none}
+.notes h3{font-size:22px}.notes p{font-size:17px;line-height:1.5;color:#243b56}
+.footer-helper{font-size:13px;color:#95abc0}
+.svg-flow{width:100%;max-width:660px;max-height:330px;display:block;margin:auto}
+.illustration{width:100%;height:auto;max-height:300px}
+@media(max-width:1100px){.panels.four .panel{padding:12px 14px}.panels.four .panel p{font-size:17px;line-height:1.24;margin-bottom:3px}.panels.four .panel .rule{font-size:19px;margin:5px 0;padding:7px 11px}.panels.four .panel .answer-btn{padding:9px 13px;min-height:38px;font-size:15px}.panel{padding:17px}.panels.four{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-helper{display:none}.app{grid-template-rows:54px minmax(0,1fr) 69px} .slide{padding:17px 30px}}
+@media(max-width:680px){.app{grid-template-rows:50px minmax(0,1fr) 65px}.topbar,.bottom{padding:0 12px}.top-right .sectiontag{display:none}.slide{padding:22px 17px}.panels,.panels.three,.panels.four,.grid-test{grid-template-columns:1fr}.panel p,.panel li{font-size:18px}h1{font-size:50px}h2{font-size:38px}.nav-btn{padding:8px 11px;min-height:40px}.nav-left{gap:5px}.nav-right{gap:5px}.nav-btn.timer-toggle{display:none}.timebox .tiny{display:none}.slide-counter{min-width:53px}.brand{font-size:12px}.brandmark{width:25px;height:25px}.top-right{font-size:11px}}
+@media(max-height:720px) and (min-width:681px){.slide{padding-top:12px;padding-bottom:14px}.kicker{margin-bottom:7px}h2{margin-bottom:10px}.lead{margin-bottom:12px}.panels{margin-top:10px}.panel{padding:16px}.panel p{line-height:1.28}.callout{margin-top:8px;padding:9px 15px}.big-btn{padding:10px 17px;min-height:42px}.result{min-height:60px;padding:10px 14px}.rule{margin:8px 0;padding:10px 17px}.steps{margin:12px 0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* ===== Agregados para los repasos de Data Warehousing (mismo sistema visual) ===== */
+.brandmark.dw{font-size:12px;letter-spacing:-.02em}
+.top-right a,.nav-left a{color:var(--muted);text-decoration:none}
+.top-right a:hover,.nav-left a:hover{color:var(--cyan)}
+.pq{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;padding:8px 12px;border-radius:13px;border:1px dashed rgba(255,220,141,.55);background:rgba(255,220,141,.07);color:#ffedc1;font-size:clamp(13px,1vw,16px);font-weight:800}
+.pq .pq-label{letter-spacing:.13em;text-transform:uppercase;font-size:.78em;color:var(--yellow);font-weight:900}
+.pq button{border:1px solid rgba(255,220,141,.45);background:rgba(255,220,141,.12);color:#fff3d1;border-radius:999px;padding:4px 11px;font-weight:850;font-size:inherit;font-variant-numeric:tabular-nums}
+.pq button:hover{background:rgba(255,220,141,.3);border-color:var(--yellow)}
+.pq button.ok{background:#174b3a;border-color:var(--green);color:#a5f9c5}
+.pq button.ko{background:#512935;border-color:var(--red);color:#ffd0d0}
+table.cmp{width:100%;border-collapse:separate;border-spacing:0;margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:clamp(14px,1.18vw,19px)}
+table.cmp th,table.cmp td{padding:10px 15px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.36}
+table.cmp thead th{background:#123049;color:var(--cyan);font-size:.82em;letter-spacing:.08em;text-transform:uppercase;font-weight:900}
+table.cmp tbody th{color:#e6f1ff;font-weight:820;background:rgba(19,44,71,.6)}
+table.cmp td{color:#d6e5f3;background:rgba(11,30,49,.55)}
+table.cmp tr:last-child>*{border-bottom:0}
+table.cmp td b,table.cmp td strong{color:#fff}
+.flow{display:flex;align-items:stretch;gap:8px;margin:18px 0}
+.flow .node{flex:1 1 0;min-width:0;border:1px solid rgba(115,225,237,.38);background:var(--panel);border-radius:15px;padding:13px 15px}
+.flow .node b{display:block;color:var(--cyan);font-size:clamp(16px,1.35vw,22px);margin-bottom:5px;line-height:1.15}
+.flow .node span{font-size:clamp(13px,1.02vw,16.5px);color:#c9dbee;line-height:1.36;display:block}
+.flow .node span b,.flow .node span strong{display:inline;font-size:inherit;color:#fff;margin:0;line-height:inherit}
+.flow .node .n{font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:900;margin-bottom:4px;display:block}
+.flow .arrow{align-self:center;color:#7f9bb8;font-size:24px;font-weight:900;flex:0 0 auto}
+.flow .node.hl{border-color:rgba(255,220,141,.7);background:rgba(255,220,141,.08)}.flow .node.hl b{color:var(--yellow)}
+.flow .node.vio{border-color:rgba(194,169,255,.6);background:rgba(57,52,94,.5)}.flow .node.vio b{color:var(--violet)}
+.flow .node.grn{border-color:rgba(140,232,180,.55);background:rgba(24,70,53,.45)}.flow .node.grn b{color:var(--green)}
+.tag{display:inline-block;padding:2px 9px;border-radius:7px;font-size:.8em;font-weight:850;background:rgba(138,182,255,.16);color:var(--blue);margin:0 4px 4px 0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.panel ul{margin:4px 0 0;padding-left:1.15em}
+.panel li{margin-bottom:5px}
+.panel h3{color:#eaf4ff}
+.panel .big-number.sm{font-size:clamp(26px,2.5vw,40px)}
+.panels.tight .panel{padding:clamp(13px,1.3vw,20px)}
+.panels.tight .panel p,.panels.tight .panel li{font-size:clamp(15px,1.22vw,19.5px)}
+pre.code{font-size:clamp(14px,1.18vw,19px);line-height:1.5}
+pre.code .kw{color:var(--cyan);font-weight:800}pre.code .cm{color:#7f97b0;font-style:italic}pre.code .st{color:var(--yellow)}
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(12px,1.3vw,22px);align-items:start;margin-top:16px}
+.mini-table{width:100%;border-collapse:collapse;font-size:clamp(14px,1.1vw,18px)}
+.mini-table th,.mini-table td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+.mini-table th{background:#123049;color:var(--cyan);font-weight:850}
+.mini-table td{color:#d6e5f3}
+.k-pk{color:var(--yellow);font-weight:900}.k-fk{color:var(--violet);font-weight:900}
+.venn{width:100%;max-width:190px;height:auto;display:block;margin:0 auto 8px}
+.hier{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.hier .lvl{border:1px solid rgba(115,225,237,.38);background:var(--panel);border-radius:14px;padding:12px 16px;font-size:clamp(16px,1.3vw,21px)}
+.hier .lvl b{color:var(--cyan)}
+.hier .lvl:nth-child(2){margin-left:34px;border-color:rgba(138,182,255,.45)}
+.hier .lvl:nth-child(3){margin-left:68px;border-color:rgba(194,169,255,.5)}
+/* ===== Práctica ===== */
+.quiz{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:clamp(12px,1.3vw,22px);align-items:start}
+.q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.q-prompt{font-size:clamp(18px,1.55vw,25px);font-weight:700;line-height:1.38;margin-bottom:12px;color:#f4f8ff}
+.q-multi{color:var(--yellow);font-weight:850;font-size:clamp(14px,1.1vw,17px);margin:-4px 0 10px}
+.q-multi[hidden]{display:none}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;width:100%;border:1px solid rgba(115,225,237,.30);border-radius:14px;padding:10px 15px;background:rgba(28,69,95,.4);color:var(--text);font-size:clamp(15px,1.2vw,19.5px);font-weight:600;line-height:1.35;transition:background .15s,border-color .15s}
+.opt .letter{flex-shrink:0;width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#174360;font-weight:900;color:var(--cyan);font-size:15px}
+.opt:hover:not(:disabled){border-color:var(--cyan);background:#205574}
+.opt.sel{border-color:var(--cyan);background:#1d4d6b}.opt.sel .letter{background:var(--cyan);color:#092332}
+.opt.ok{border-color:rgba(140,232,180,.85);background:rgba(44,113,79,.38)}.opt.ok .letter{background:var(--green);color:#10243a}
+.opt.ko{border-color:rgba(255,154,154,.85);background:rgba(132,54,68,.38)}.opt.ko .letter{background:var(--red);color:#10243a}
+.opt:disabled{opacity:1;cursor:default}
+.q-dots{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:12px 0 4px}
+.dot{min-height:31px;border-radius:8px;border:1px solid var(--line);background:rgba(18,49,72,.6);color:#a9bdd3;font-size:12.5px;font-weight:850;padding:0;font-variant-numeric:tabular-nums}
+.dot:hover{border-color:var(--cyan)}
+.dot.cur{outline:2px solid var(--yellow);outline-offset:1px;color:#fff}
+.dot.ok{background:#174b3a;color:#a5f9c5;border-color:rgba(140,232,180,.6)}
+.dot.ko{background:#512935;color:#ffd0d0;border-color:rgba(255,154,154,.6)}
+.q-side .inline-note{font-size:14px;line-height:1.4;color:var(--muted)}
+.q-side .button-row{gap:8px}.q-side .subtle-btn{padding:8px 12px;min-height:38px}
+.q-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
+.q-legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.result .explain{font-size:clamp(14px,1.08vw,17px);color:#d0dfef}
+@media(max-width:1100px){.quiz{grid-template-columns:1fr}.flow{flex-wrap:wrap}.flow .arrow{display:none}.flow .node{flex:1 1 30%}.split{grid-template-columns:1fr}}
+@media(max-width:680px){.flow .node{flex:1 1 100%}table.cmp{font-size:14px}table.cmp th,table.cmp td{padding:7px 9px}}
+
+</style>
+<style>/* ajuste para celular: que el contenido no quede más ancho que la pantalla */
+.app{grid-template-columns:minmax(0,1fr)}
+@media(max-width:680px){.brand{min-width:0;overflow:hidden;text-overflow:ellipsis}#phaseLabel,.timebox{display:none}.top-right{flex-shrink:0}table.cmp{display:block;overflow-x:auto}}
+</style>
+</head>
+<body data-deck="c1">
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><span class="brandmark dw" aria-hidden="true">DW</span> Data Warehousing · Repaso para el parcial</div>
+    <div class="top-right"><span class="sectiontag">Curso 1 · Nube</span><span id="phaseLabel">Inicio</span><a href="index.html" title="Volver al índice">Índice</a></div>
+  </header>
+  <main class="stage" id="stage" aria-live="off">
+
+    <section class="slide active" data-phase="Inicio" data-note="Este repaso cubre el Curso 1 del certificado (Introducción al análisis de datos en Google Cloud) y el curso introductorio Data Analytics Essentials. Las etiquetas amarillas «Pregunta de parcial» te llevan directo a la pregunta del banco.">
+      <div class="slide-inner narrow">
+
+        <p class="kicker">Data Warehousing · Curso 1 · Repaso de parcial</p>
+        <h1>La nube y el <span class="accent">análisis de datos.</span></h1>
+        <p class="lead big-lead">Introducción al análisis de datos en Google Cloud + Google Cloud Data Analytics Essentials: solo los conceptos que entran.</p>
+        <div class="chip-row"><span class="chip">Nube</span><span class="chip">IaaS · PaaS · SaaS</span><span class="chip">Costos</span><span class="chip">BigQuery</span><span class="chip">Ciclo de vida</span><span class="chip">Seguridad</span><span class="chip">Roles</span><span class="chip">47 preguntas</span></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Computación en la nube" data-note="Definición para memorizar: recursos según la demanda, como servicios por Internet. Ventaja típica de pregunta: acceder y administrar datos desde cualquier lugar y momento, y reunir grandes volúmenes de varias fuentes.">
+      <div class="slide-inner">
+
+        <p class="kicker">01 · Qué es</p>
+        <h2>Computación en la nube</h2>
+        <div class="rule compact">Disponibilidad de recursos informáticos —cómputo, almacenamiento, redes, software— <span class="accent">según la demanda</span>, entregados como servicios a través de Internet.</div>
+        <table class="cmp">
+          <thead><tr><th></th><th>Tradicional (on-premise, en las instalaciones)</th><th>Nube</th></tr></thead>
+          <tbody>
+            <tr><th>Infraestructura</th><td>Servidores y centro de datos propios</td><td>Del proveedor; se usa como servicio</td></tr>
+            <tr><th>Costo</th><td>Gran inversión inicial en hardware + mantenimiento</td><td><b>Pago por uso</b>: pagás lo que consumís</td></tr>
+            <tr><th>Escalar</th><td>Comprar e instalar equipos (semanas)</td><td>Minutos, incluso de forma automática</td></tr>
+            <tr><th>Acceso</th><td>Limitado a la red de la organización</td><td><b>Desde cualquier lugar y momento</b> vía Internet</td></tr>
+            <tr><th>Para el análisis</th><td>Datos dispersos en silos locales</td><td>Grandes volúmenes de datos de <b>varias fuentes</b> en un solo lugar</td></tr>
+          </tbody>
+        </table>
+        <div class="pq" data-pq="2,16,59"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="2" title="Practicar la pregunta 2">#2</button><button type="button" data-goq="16" title="Practicar la pregunta 16">#16</button><button type="button" data-goq="59" title="Practicar la pregunta 59">#59</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Arquitectura" data-note="Backend: seguridad = privacidad y protección de los datos; entorno de ejecución (runtime) = que los servicios funcionen de forma eficiente, sin demoras. Almacenamiento de archivos = jerarquía de carpetas.">
+      <div class="slide-inner">
+
+        <p class="kicker">02 · Cómo está armada</p>
+        <h2>Frontend, backend y almacenamiento</h2>
+        <div class="split">
+          <div class="panel">
+            <div class="panel-title">Componentes del backend</div>
+            <p><span class="tag">Aplicación</span><span class="tag">Servicio</span><span class="tag">Entorno de ejecución</span><span class="tag">Almacenamiento</span><span class="tag">Infraestructura</span><span class="tag">Administración</span><span class="tag">Seguridad</span></p>
+            <ul>
+              <li><b>Seguridad</b>: protege los datos y mantiene su <b>privacidad</b>.</li>
+              <li><b>Entorno de ejecución</b> (runtime): ejecuta los servicios de forma <b>eficiente y sin demoras</b>.</li>
+              <li><b>Infraestructura</b>: hardware real (servidores, red); <b>administración</b>: coordina los recursos.</li>
+            </ul>
+            <p class="small">El <b>frontend</b> es lo que usa el cliente: navegador, app, interfaz.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Tipos de almacenamiento en la nube</div>
+            <ul>
+              <li><b>Archivos</b>: jerarquía de <b>carpetas</b>; simple y fácil de entender.</li>
+              <li><b>Bloques</b>: datos divididos en bloques de tamaño fijo; baja latencia (discos de VM, bases de datos).</li>
+              <li><b>Objetos</b>: cada objeto con sus datos, metadatos e ID, en <i>buckets</i>; escala masiva, ideal para no estructurados.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="pq" data-pq="10,63,57"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="10" title="Practicar la pregunta 10">#10</button><button type="button" data-goq="63" title="Practicar la pregunta 63">#63</button><button type="button" data-goq="57" title="Practicar la pregunta 57">#57</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Modelos de servicio" data-note="Regla: cuanto más «arriba» (SaaS), menos administrás vos. «Los desarrolladores solo compilan la app sin pensar en infraestructura» = PaaS.">
+      <div class="slide-inner">
+
+        <p class="kicker">03 · Modelos de servicio</p>
+        <h2>IaaS, PaaS y SaaS</h2>
+        <table class="cmp">
+          <thead><tr><th>Modelo</th><th>El proveedor te da…</th><th>Vos administrás…</th><th>Pista típica</th></tr></thead>
+          <tbody>
+            <tr><th>IaaS<br><span class="small">Infraestructura como servicio</span></th><td>Infraestructura virtual: servidores, almacenamiento, redes</td><td>Sistema operativo, entorno, aplicaciones y datos</td><td>Máquinas virtuales; «máximo control»</td></tr>
+            <tr><th>PaaS<br><span class="small">Plataforma como servicio</span></th><td>Plataforma lista para desarrollar, ejecutar y desplegar</td><td>Solo tu aplicación y tus datos</td><td>Los desarrolladores <b>solo compilan la app</b>, sin pensar en la infraestructura</td></tr>
+            <tr><th>SaaS<br><span class="small">Software como servicio</span></th><td>Aplicación completa, lista para usar por Internet</td><td>Solo su uso y configuración</td><td>Correo web, ofimática en línea</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">IaaS → más <strong>control</strong> · SaaS → más <strong>comodidad</strong>. PaaS queda en el medio.</div>
+        <div class="pq" data-pq="58"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="58" title="Practicar la pregunta 58">#58</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Modelos de implementación" data-note="Nube pública: recursos compartidos entre varios usuarios y organizaciones; ideal para startup sin hardware propio. Si una norma obliga a guardar datos localmente: híbrida.">
+      <div class="slide-inner">
+
+        <p class="kicker">04 · Modelos de implementación</p>
+        <h2>¿Dónde vive la nube?</h2>
+        <div class="panels four tight">
+          <div class="panel"><div class="big-number sm">Pública</div><p>Recursos del proveedor, accesibles por Internet y <b>compartidos entre varios usuarios y organizaciones</b>.</p><p class="small">Escalar sin comprar hardware: ideal para una startup con poca TI.</p></div>
+          <div class="panel"><div class="big-number sm">Privada</div><p>Infraestructura <b>dedicada a una sola organización</b> (propia o de un proveedor).</p><p class="small">Más control y aislamiento.</p></div>
+          <div class="panel"><div class="big-number sm">Híbrida</div><p>Combina infraestructura <b>local/privada + nube pública</b>.</p><p class="small">Ej.: una normativa exige guardar ciertos datos <b>de forma local</b>.</p></div>
+          <div class="panel"><div class="big-number sm">Multinube</div><p>Usa servicios de <b>varios proveedores</b> de nube pública.</p><p class="small">Evita depender de uno solo; elige lo mejor de cada uno.</p></div>
+        </div>
+        <div class="pq" data-pq="61,62,4"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="61" title="Practicar la pregunta 61">#61</button><button type="button" data-goq="62" title="Practicar la pregunta 62">#62</button><button type="button" data-goq="4" title="Practicar la pregunta 4">#4</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Beneficios" data-note="No confundir: ajuste de escala automático = sube/baja recursos solo según la demanda; aprovisionamiento dinámico = asignar recursos cuando la demanda es impredecible pagando solo lo usado. Emergencias = recuperación ante desastres.">
+      <div class="slide-inner">
+
+        <p class="kicker">05 · Beneficios</p>
+        <h2>¿Por qué la nube?</h2>
+        <div class="panels three tight">
+          <div class="panel"><h3>Escalabilidad</h3><p>Aumentar o reducir recursos según lo que se necesite.</p></div>
+          <div class="panel"><h3>Ajuste de escala automático</h3><p>Los recursos se ajustan <b>solos</b> a la demanda (picos y bajas).</p></div>
+          <div class="panel"><h3>Aprovisionamiento dinámico</h3><p>Asigna recursos en el momento ante <b>demanda impredecible</b>; pagás solo lo usado.</p></div>
+          <div class="panel"><h3>Ahorro de costos</h3><p>Pago por uso: transacciones, almacenamiento y transferencia de datos que realmente usás.</p></div>
+          <div class="panel"><h3>Seguridad</h3><p>Controles del proveedor + cifrado + permisos administrados.</p></div>
+          <div class="panel"><h3>Recuperación ante desastres</h3><p>Copias redundantes: los datos siguen protegidos <b>incluso en una emergencia</b>.</p></div>
+        </div>
+        <div class="pq" data-pq="9,65,3,56"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="9" title="Practicar la pregunta 9">#9</button><button type="button" data-goq="65" title="Practicar la pregunta 65">#65</button><button type="button" data-goq="3" title="Practicar la pregunta 3">#3</button><button type="button" data-goq="56" title="Practicar la pregunta 56">#56</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Costos" data-note="Uso de red = datos que se leen o trasladan entre buckets de almacenamiento. Con un dataset grande, el recurso a vigilar para no pagar de más es el almacenamiento. Ventaja principal de optimizar costos (según el banco): reducir la emisión de carbono.">
+      <div class="slide-inner">
+
+        <p class="kicker">06 · Costos y optimización</p>
+        <h2>¿Qué se paga en la nube?</h2>
+        <div class="panels three tight">
+          <div class="panel"><div class="big-number sm">Almacenamiento</div><p>Cantidad de datos <b>guardados</b> y por cuánto tiempo.</p></div>
+          <div class="panel"><div class="big-number sm">Procesamiento</div><p>Datos procesados por las consultas y potencia de cómputo usada.</p></div>
+          <div class="panel"><div class="big-number sm">Uso de red</div><p>Datos que se <b>leen o trasladan entre buckets</b> de almacenamiento o regiones.</p></div>
+        </div>
+        <div class="panels" style="margin-top:14px">
+          <div class="panel soft"><div class="panel-title">Cómo optimizar</div><ul><li>Borrar o archivar lo que no se usa; elegir la clase de almacenamiento adecuada.</li><li>Consultar solo columnas y particiones necesarias (evitar <span class="mono">SELECT *</span>).</li><li>Presupuestos, alertas y monitoreo del gasto.</li></ul></div>
+          <div class="panel soft"><div class="panel-title">Efectos</div><p>Menos recursos desperdiciados → menor gasto y <b>reducción de la emisión de carbono</b>.</p><p class="small">Dataset muy grande: administrar el <b>almacenamiento</b> para no pagar de más.</p></div>
+        </div>
+        <div class="pq" data-pq="7,120,64"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="7" title="Practicar la pregunta 7">#7</button><button type="button" data-goq="120" title="Practicar la pregunta 120">#120</button><button type="button" data-goq="64" title="Practicar la pregunta 64">#64</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Almacenes en la nube" data-note="Panel con lecturas actuales de sensores = analítica en tiempo real. Informes sobre datos históricos en un servidor separado de los operativos = informes y análisis personalizados.">
+      <div class="slide-inner">
+
+        <p class="kicker">07 · Almacenes de datos en la nube</p>
+        <h2>Un lugar central para analizar</h2>
+        <div class="rule compact">Un <span class="accent">almacén de datos</span> integra datos de muchas fuentes en un repositorio central optimizado para <b>consultas, informes y análisis</b>, separado de los sistemas operativos del día a día.</div>
+        <div class="panels four tight">
+          <div class="panel"><h3>Analítica en tiempo real</h3><p>Paneles con datos actuales (ej.: lecturas de sensores).</p></div>
+          <div class="panel"><h3>Informes personalizados</h3><p>Análisis de datos <b>históricos</b> sin cargar los sistemas operativos.</p></div>
+          <div class="panel"><h3>Integración</h3><p>Une fuentes diversas; escala sin administrar servidores.</p></div>
+          <div class="panel"><h3>SQL + IA/AA</h3><p>Consultas SQL y modelos de aprendizaje automático sobre los mismos datos.</p></div>
+        </div>
+        <div class="callout">Ejemplo de beneficio: una universidad obtiene información sobre la <strong>evaluación y la eficacia</strong> de sus cursos y contenidos.</div>
+        <div class="pq" data-pq="1,5,8"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="1" title="Practicar la pregunta 1">#1</button><button type="button" data-goq="5" title="Practicar la pregunta 5">#5</button><button type="button" data-goq="8" title="Practicar la pregunta 8">#8</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="BigQuery" data-note="Función principal de BigQuery: almacenar y analizar datos. Jerarquía: proyecto &gt; conjunto de datos &gt; tabla.">
+      <div class="slide-inner">
+
+        <p class="kicker">08 · BigQuery</p>
+        <h2>BigQuery: <span class="accent">almacenar y analizar</span></h2>
+        <div class="split">
+          <div class="panel">
+            <p>Almacén de datos de Google Cloud, <b>sin servidor</b> y totalmente administrado: guardás los datos y los analizás con <b>SQL</b>, sin gestionar infraestructura.</p>
+            <div class="hier">
+              <div class="lvl"><b>Proyecto</b> · contenedor de recursos, facturación y permisos</div>
+              <div class="lvl"><b>Conjunto de datos</b> (dataset) · agrupa tablas</div>
+              <div class="lvl"><b>Tabla</b> · filas y columnas con un esquema</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Nombre completo de una tabla</div>
+            <pre class="code mono"><span class="kw">SELECT</span> nombre, ciudad
+<span class="kw">FROM</span> `mi-proyecto.tienda.clientes`
+<span class="kw">WHERE</span> ciudad = <span class="st">'Montevideo'</span>;</pre>
+            <p class="small">Caso típico: analizar datos de clientes para encontrar tendencias → BigQuery.</p>
+          </div>
+        </div>
+        <div class="pq" data-pq="17,60"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="17" title="Practicar la pregunta 17">#17</button><button type="button" data-goq="60" title="Practicar la pregunta 60">#60</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Ciclo de vida" data-note="Orden exacto: planificar, capturar, administrar, analizar, archivar, destruir. Después de analizar/visualizar/recomendar viene archivar. Almacenar bien, mantenimiento, seguridad y PII = administrar. Datos que ya no sirven = destruir.">
+      <div class="slide-inner">
+
+        <p class="kicker">09 · Ciclo de vida de los datos</p>
+        <h2>Seis etapas, en orden</h2>
+        <div class="flow">
+          <div class="node"><span class="n">01</span><b>Planificar</b><span>Qué datos, para qué, quién y cómo.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">02</span><b>Capturar</b><span>Recopilar de las fuentes.</span></div><div class="arrow">→</div>
+          <div class="node hl"><span class="n">03</span><b>Administrar</b><span>Almacenar de forma segura, mantenimiento, proteger la PII.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">04</span><b>Analizar</b><span>Responder preguntas, visualizar, recomendar.</span></div><div class="arrow">→</div>
+          <div class="node vio"><span class="n">05</span><b>Archivar</b><span>Guardar lo que ya no se usa activamente.</span></div><div class="arrow">→</div>
+          <div class="node vio"><span class="n">06</span><b>Destruir</b><span>Eliminar lo que ya no es útil (privacidad y cumplimiento).</span></div>
+        </div>
+        <div class="callout">La <strong>administración de datos</strong> son las prácticas para recopilar, almacenar, proteger y usar los datos durante todo ese ciclo.</div>
+        <div class="pq" data-pq="13,14,68,69"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="13" title="Practicar la pregunta 13">#13</button><button type="button" data-goq="14" title="Practicar la pregunta 14">#14</button><button type="button" data-goq="68" title="Practicar la pregunta 68">#68</button><button type="button" data-goq="69" title="Practicar la pregunta 69">#69</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Plan de administración" data-note="Acceso = roles y permisos. Archivos = procedimientos de copias de seguridad, archivado o borrado. Seguridad y privacidad = políticas para la PII. Tras iniciar el plan: definir roles y responsabilidades del equipo.">
+      <div class="slide-inner">
+
+        <p class="kicker">10 · Plan de administración de datos</p>
+        <h2>¿Qué define el plan?</h2>
+        <div class="panels three tight">
+          <div class="panel"><h3>Tipos de datos</h3><p>Qué datos recopila la organización.</p></div>
+          <div class="panel"><h3>Almacenamiento</h3><p>Dónde y cómo se guardan.</p></div>
+          <div class="panel"><h3>Acceso</h3><p><b>Roles y permisos</b> de quienes usan los datos y los servidores.</p></div>
+          <div class="panel"><h3>Archivos</h3><p>Procedimientos de <b>copias de seguridad, archivado o borrado</b>.</p></div>
+          <div class="panel"><h3>Seguridad y privacidad</h3><p>Políticas, prácticas y protocolos para proteger la <b>PII</b>.</p></div>
+          <div class="panel"><h3>Primer paso del equipo</h3><p>Con el plan iniciado: <b>definir roles y responsabilidades</b> del equipo de administración.</p></div>
+        </div>
+        <div class="pq" data-pq="11,66,67,27,90"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="11" title="Practicar la pregunta 11">#11</button><button type="button" data-goq="66" title="Practicar la pregunta 66">#66</button><button type="button" data-goq="67" title="Practicar la pregunta 67">#67</button><button type="button" data-goq="27" title="Practicar la pregunta 27">#27</button><button type="button" data-goq="90" title="Practicar la pregunta 90">#90</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Retención y versiones" data-note="Control de versiones: además de calidad, sirve para cumplimiento y para revertir a una versión anterior.">
+      <div class="slide-inner">
+
+        <p class="kicker">11 · Retención y control de versiones</p>
+        <h2>Cuánto guardar y cómo volver atrás</h2>
+        <div class="panels">
+          <div class="panel"><div class="panel-title">Retención de datos</div><p>Política que fija <b>cuánto tiempo</b> se conserva cada tipo de dato según su utilidad y la normativa.</p><p>Al vencer: <b>archivar</b> o <b>destruir</b>.</p><p class="small">Guardar «todo para siempre» aumenta costos y riesgos.</p></div>
+          <div class="panel"><div class="panel-title">Control de versiones</div><p>Registra cada cambio de los datos para saber quién cambió qué y cuándo.</p><ul><li>Respalda el <b>control de calidad</b>.</li><li>Ayuda a abordar el <b>cumplimiento</b>.</li><li>Permite <b>revertir a una versión anterior</b>.</li></ul></div>
+        </div>
+        <div class="pq" data-pq="73"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="73" title="Practicar la pregunta 73">#73</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Seguridad y privacidad" data-note="PII: nombre, dirección, fecha de nacimiento, datos financieros. RGPD: datos de ciudadanos de la UE. Empresa en crecimiento: control de acceso basado en roles; grupos por rol con solo los permisos necesarios.">
+      <div class="slide-inner">
+
+        <p class="kicker">12 · Seguridad, privacidad y acceso</p>
+        <h2>Proteger los datos (y a las personas)</h2>
+        <div class="panels four tight">
+          <div class="panel"><h3>PII</h3><p>Información de identificación personal: nombre, dirección, fecha de nacimiento, datos financieros.</p></div>
+          <div class="panel"><h3>RGPD (GDPR)</h3><p>Reglamento General de Protección de Datos de la UE: aplica a datos personales de ciudadanos de la UE.</p></div>
+          <div class="panel"><h3>Acceso por roles</h3><p><b>RBAC</b>: los permisos se asignan a <b>roles</b>, no persona por persona; escala bien al crecer.</p></div>
+          <div class="panel"><h3>Mínimo privilegio</h3><p>Grupo de seguridad por rol con <b>solo los permisos necesarios</b>.</p></div>
+        </div>
+        <div class="callout"><strong>Seguridad</strong> = impedir accesos no autorizados. <strong>Privacidad</strong> = usar los datos personales de forma adecuada y legal.</div>
+        <div class="pq" data-pq="12,72,18,74"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="12" title="Practicar la pregunta 12">#12</button><button type="button" data-goq="72" title="Practicar la pregunta 72">#72</button><button type="button" data-goq="18" title="Practicar la pregunta 18">#18</button><button type="button" data-goq="74" title="Practicar la pregunta 74">#74</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Roles" data-note="Analista: analiza, revisa bases, visualiza y presenta. Científico: investigación, preguntas de negocio, scripts y modelos, datos de múltiples fuentes. Ingeniero: infraestructura y canalizaciones.">
+      <div class="slide-inner">
+
+        <p class="kicker">13 · Equipo de datos</p>
+        <h2>¿Quién hace qué?</h2>
+        <table class="cmp">
+          <thead><tr><th>Rol</th><th>Qué hace</th><th>Palabras clave en la pregunta</th></tr></thead>
+          <tbody>
+            <tr><th>Analista de datos</th><td>Analiza datos existentes, revisa bases de datos, crea visualizaciones y <b>presenta hallazgos</b>.</td><td>analizar · visualizar · presentar · informes</td></tr>
+            <tr><th>Científico de datos</th><td>Investiga, formula <b>preguntas de negocio</b>, escribe scripts y <b>modelos</b>, recopila y organiza datos de múltiples fuentes.</td><td>investigación · modelos · predicción · AA</td></tr>
+            <tr><th>Ingeniero de datos</th><td>Construye y mantiene la <b>infraestructura</b> y las canalizaciones que mueven y preparan los datos.</td><td>canalización · ETL · infraestructura</td></tr>
+          </tbody>
+        </table>
+        <div class="pq" data-pq="15,70,71"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="15" title="Practicar la pregunta 15">#15</button><button type="button" data-goq="70" title="Practicar la pregunta 70">#70</button><button type="button" data-goq="71" title="Practicar la pregunta 71">#71</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Herramientas" data-note="Looker: una sola herramienta para organizar datos, crear flujos de trabajo/apps, informes y visualizaciones. Cloud Storage: aloja en un solo lugar datos de servidores remotos. Dataproc se ve en el Curso 2.">
+      <div class="slide-inner">
+
+        <p class="kicker">14 · Herramientas de Google Cloud</p>
+        <h2>El kit básico</h2>
+        <div class="panels three tight">
+          <div class="panel"><h3>BigQuery</h3><p>Almacén de datos: almacenar y analizar con SQL.</p></div>
+          <div class="panel"><h3>Cloud Storage</h3><p>Almacenamiento de objetos: aloja en <b>un solo lugar</b> datos de servidores remotos (bases de apps, estadísticas, herramientas).</p></div>
+          <div class="panel"><h3>Dataproc</h3><p>Spark y Hadoop administrados (código abierto): lotes, consultas, transmisión y AA.</p></div>
+          <div class="panel"><h3>Looker</h3><p>Plataforma de BI: <b>organizar</b> datos, crear flujos de trabajo y apps, <b>informes y visualizaciones</b> en una sola herramienta.</p></div>
+          <div class="panel"><h3>Looker Studio</h3><p>Paneles e informes interactivos para visualizar y compartir datos.</p></div>
+          <div class="panel soft"><h3>Recordá</h3><p>Guardar → <b>Cloud Storage / BigQuery</b> · procesar → <b>Dataproc</b> · mostrar → <b>Looker</b>.</p></div>
+        </div>
+        <div class="pq" data-pq="75,79"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="75" title="Practicar la pregunta 75">#75</button><button type="button" data-goq="79" title="Practicar la pregunta 79">#79</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Solicitud de datos" data-note="Primer paso: evaluar la solicitud (objetivo/conclusión deseada). Después de limpiar: comprobar valores atípicos (visualizaciones y estadísticas de resumen). Valor absurdo en encuesta: revisar la pregunta.">
+      <div class="slide-inner">
+
+        <p class="kicker">15 · Responder una solicitud de datos</p>
+        <h2>Pasos de una solicitud</h2>
+        <div class="flow">
+          <div class="node hl"><span class="n">01</span><b>Evaluar</b><span>Entender el <b>objetivo</b> o la conclusión deseada.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">02</span><b>Identificar y recopilar</b><span>Qué datos hacen falta y de dónde.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">03</span><b>Limpiar</b><span>Corregir errores, duplicados, faltantes.</span></div><div class="arrow">→</div>
+          <div class="node hl"><span class="n">04</span><b>Valores atípicos</b><span>Visualizaciones + estadísticas de resumen.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">05</span><b>Analizar y compartir</b><span>Visualizar y presentar hallazgos.</span></div>
+        </div>
+        <div class="panels three tight">
+          <div class="panel soft"><p><b>Atípico raro</b> (ej.: alguien tardó 26 h en una encuesta): revisar la <b>pregunta de la encuesta</b>, no ignorarlo.</p></div>
+          <div class="panel soft"><p><b>Tickets</b>: la relación superior-secundario divide un ticket en <b>subtickets</b> que avanzan en paralelo.</p></div>
+          <div class="panel soft"><p><b>Guía de datos</b> para incorporar personas: incluir <b>cómo otorgar acceso</b> a los datos.</p></div>
+        </div>
+        <div class="pq" data-pq="20,76,77,19,80,81"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="20" title="Practicar la pregunta 20">#20</button><button type="button" data-goq="76" title="Practicar la pregunta 76">#76</button><button type="button" data-goq="77" title="Practicar la pregunta 77">#77</button><button type="button" data-goq="19" title="Practicar la pregunta 19">#19</button><button type="button" data-goq="80" title="Practicar la pregunta 80">#80</button><button type="button" data-goq="81" title="Practicar la pregunta 81">#81</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Práctica" data-note="Respondé sin mirar las diapositivas. Después usá «Repasar falladas» hasta llegar a cero errores. Las preguntas marcadas «Seleccioná dos respuestas» tienen dos opciones correctas.">
+      <div class="slide-inner narrow centered">
+
+        <p class="kicker">Práctica · banco de preguntas · curso 1</p>
+        <h2>Ahora, <span class="accent">a practicar.</span></h2>
+        <p class="lead">47 preguntas del banco relacionadas con este curso, con el texto original y su explicación.</p>
+        <div class="panels three">
+          <div class="panel"><div class="big-number">47</div><h3>Preguntas</h3><p class="small">Ordenadas por número del banco.</p></div>
+          <div class="panel"><div class="big-number">1 clic</div><h3>Respondés y ves</h3><p class="small">Correcta / incorrecta + explicación al instante.</p></div>
+          <div class="panel"><div class="big-number">A–E</div><h3>Teclado</h3><p class="small">Letras para responder · ← → para moverte entre preguntas.</p></div>
+        </div>
+        <div class="button-row" style="justify-content:center"><button type="button" class="big-btn primary" id="startQuiz">Empezar práctica →</button></div>
+        <p class="inline-note" style="margin-top:12px">Preguntas: 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 27, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 90, 120</p>
+      </div>
+    </section>
+    <section class="slide" id="quizSlide" data-phase="Práctica" data-note="Atajos: A–E o 1–5 para responder, ← → para cambiar de pregunta, Inicio/Fin para ir a la primera o última diapositiva. El progreso se guarda en este navegador.">
+      <div class="slide-inner">
+
+        <div class="quiz">
+          <div class="panel q-main">
+            <div class="q-head"><span class="scenario-number" id="qNum" style="margin:0">PREGUNTA</span><span class="tiny" id="qPos"></span></div>
+            <p class="q-prompt" id="qPrompt"></p>
+            <p class="q-multi" id="qMulti" hidden>Seleccioná dos respuestas.</p>
+            <div class="opts" id="qOpts"></div>
+            <div class="result unknown" id="qFeedback"><div class="result-icon">?</div><div><div class="result-text">Elegí una opción.</div><div class="explain">La explicación aparece al responder.</div></div></div>
+            <div class="button-row"><button type="button" class="nav-btn" id="qPrev">← Anterior</button><button type="button" class="nav-btn next" id="qNext">Siguiente pregunta →</button></div>
+          </div>
+          <aside class="panel soft q-side">
+            <div class="panel-title">Tu puntaje</div>
+            <div class="big-number" id="qScore">0 / 0</div>
+            <p class="small" id="qScoreSub" style="margin:6px 0 0">0 de 47 respondidas</p>
+            <div class="q-dots" id="qDots"></div>
+            <div class="q-legend"><span><i style="background:#174b3a"></i>bien</span><span><i style="background:#512935"></i>mal</span><span><i style="background:rgba(18,49,72,.9);border:1px solid #36516b"></i>sin responder</span></div>
+            <div class="button-row"><button type="button" class="subtle-btn" id="qWrong">Repasar falladas</button><button type="button" class="subtle-btn" id="qShuffle">Mezclar</button><button type="button" class="subtle-btn" id="qReset">Reiniciar</button></div>
+            <p class="inline-note" id="qMode" style="margin-top:10px">Modo: todas las preguntas, en orden.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="bottom">
+    <div class="nav-left">
+      <span class="slide-counter" id="slideCounter" aria-live="polite">1 / 18</span>
+      <button class="subtle-btn" type="button" id="notesToggle" title="Clave para el parcial (N)" aria-expanded="false">Clave</button>
+    </div>
+    <div class="timebox"><span class="tiny">Práctica</span><span class="timer" id="scoreDisplay" aria-label="Puntaje de la práctica">0 / 0</span></div>
+    <div class="nav-right"><span class="footer-helper">← → avanzar · F pantalla completa</span><button class="nav-btn" type="button" id="prevBtn">← Atrás</button><button class="nav-btn next" type="button" id="nextBtn">Siguiente →</button></div>
+    <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+  </footer>
+  <aside id="teacherNotes" class="notes" role="complementary" hidden><h3>Clave para el parcial</h3><p id="notesText"></p><p style="font-size:14px;color:#516987">Ocultar: tecla N o botón «Clave».</p></aside>
+</div>
+<script type="application/json" id="qdata">[{"n": 1, "prompt": "Una empresa usa BigQuery para almacenar y analizar datos de sus sensores. La empresa desea crear un panel que muestre las lecturas actuales de temperatura y humedad de todos sus sensores. ¿Qué función del almacén de datos en la nube sería más útil para crear este panel?", "options": [{"id": "a", "text": "Analítica en tiempo real"}, {"id": "b", "text": "Funciones de SQL"}, {"id": "c", "text": "Actualidad de los datos"}, {"id": "d", "text": "Migración de datos"}], "correct": ["a"], "explanation": "Para mostrar lecturas actuales de sensores en un panel hace falta analítica en tiempo real sobre datos que llegan de forma continua."}, {"n": 2, "prompt": "¿Cuál es un componente clave de la computación en la nube?", "options": [{"id": "a", "text": "Administrar de manera interna los recursos informáticos de una organización"}, {"id": "b", "text": "Configurar y administrar recursos de la organización"}, {"id": "c", "text": "Usar recursos informáticos según la demanda como servicios alojados en Internet"}, {"id": "d", "text": "Pagar una comisión mensual fija sin importar el uso"}], "correct": ["c"], "explanation": "La computación en la nube consiste en usar recursos informáticos según la demanda, como servicios alojados en Internet."}, {"n": 3, "prompt": "Una empresa necesita identificar un modelo de computación en la nube que le cobre solo por los recursos que usa, en función del número de transacciones, el volumen de almacenamiento y la cantidad de datos transferidos. ¿En qué ventaja de la computación en la nube está interesada la empresa?", "options": [{"id": "a", "text": "Escalabilidad"}, {"id": "b", "text": "Seguridad"}, {"id": "c", "text": "Eficiencia"}, {"id": "d", "text": "Ahorro de costos"}], "correct": ["d"], "explanation": "Pagar solo por lo que se usa (transacciones, almacenamiento, transferencia) es el ahorro de costos del modelo de pago por uso."}, {"n": 4, "prompt": "Tu organización está en una industria que requiere que los datos se almacenen de forma local debido a ciertas reglamentaciones y leyes. ¿Qué modelo de computación sería la opción más viable para tu organización?", "options": [{"id": "a", "text": "Computación tradicional"}, {"id": "b", "text": "Computación móvil"}, {"id": "c", "text": "Computación en la nube"}, {"id": "d", "text": "Procesamiento híbrido"}], "correct": ["d"], "explanation": "Si parte de los datos debe quedar local por normativa, se combina infraestructura local con la nube: modelo híbrido."}, {"n": 5, "prompt": "Una empresa necesita una solución que le permita analizar y generar informes en especial a partir de datos históricos, a la vez que mantener esos datos almacenados en un servidor separado de los datos operativos. ¿Qué característica de los almacenes de datos en la nube sería más beneficiosa para esta empresa?", "options": [{"id": "a", "text": "Inteligencia Artificial y capacidades de aprendizaje automático"}, {"id": "b", "text": "Analítica en tiempo real"}, {"id": "c", "text": "Informes y análisis personalizados"}, {"id": "d", "text": "Integración de datos"}], "correct": ["c"], "explanation": "Informes y análisis personalizados sobre datos históricos, separados de los operativos, es el caso típico de un almacén de datos en la nube."}, {"n": 7, "prompt": "¿A qué se refiere el término «uso de red» en el contexto de gastos de la nube?", "options": [{"id": "a", "text": "La cantidad de datos que se leen o trasladan entre buckets de almacenamiento"}, {"id": "b", "text": "La cantidad de datos procesados en la etapa de consulta"}, {"id": "c", "text": "La potencia de procesamiento que se usa para ejecutar consultas con el tiempo"}, {"id": "d", "text": "La cantidad de datos que se encuentran almacenados"}], "correct": ["a"], "explanation": "El uso de red es la cantidad de datos que se leen o trasladan entre buckets de almacenamiento."}, {"n": 8, "prompt": "Una universidad desea optimizar sus ofertas de cursos según las preferencias de los estudiantes y los datos de rendimiento. ¿Qué beneficios del análisis de datos de la nube serían los más útiles para la universidad?", "options": [{"id": "a", "text": "Recibir información de la evaluación y la eficacia de los cursos y contenidos"}, {"id": "b", "text": "Facilitar el traslado de estudiantes entre instituciones académicas"}, {"id": "c", "text": "Recibir comentarios de un miembro del cuerpo docente con anticipación y frecuencia para mejorar la experiencia de enseñanza"}, {"id": "d", "text": "Facilitar la transferencia de recursos presupuestarios entre departamentos"}], "correct": ["a"], "explanation": "El análisis de datos en la nube da información sobre la evaluación y la eficacia de los cursos y contenidos."}, {"n": 9, "prompt": "Una organización desea ajustar automáticamente sus recursos de procesamiento para satisfacer las demandas de los usuarios. ¿Qué estrategia de optimización de costos de la nube deberían usar?", "options": [{"id": "a", "text": "Ajuste de escala automático"}, {"id": "b", "text": "Redimensionamiento"}, {"id": "c", "text": "Instancias reservadas"}, {"id": "d", "text": "Visibilidad de costos"}], "correct": ["a"], "explanation": "El ajuste de escala automático (autoscaling) sube o baja recursos según la demanda."}, {"n": 10, "prompt": "Una empresa de tecnología se preocupa por la privacidad de sus datos almacenados en la nube. Para asegurar que los datos sean privados, ¿qué componente de backend debería revisar la empresa de tecnología?", "options": [{"id": "a", "text": "Aplicación"}, {"id": "b", "text": "Seguridad"}, {"id": "c", "text": "Servicio"}, {"id": "d", "text": "Entorno de ejecución de la nube"}], "correct": ["b"], "explanation": "El componente de backend de seguridad protege la privacidad y el acceso a los datos."}, {"n": 11, "prompt": "A un profesional del análisis de datos en la nube de una empresa fabricante se le encarga la creación de un plan de administración de datos. El plan debe esbozar métodos eficientes, eficaces y seguros de colección, almacenamiento, tratamiento y uso de los datos. ¿Qué tipo de información ingresará el profesional de datos en la sección del plan de administración de datos etiquetada como «Acceso»?", "options": [{"id": "a", "text": "Los roles y permisos de cualquier persona que use los datos y servidores de la empresa"}, {"id": "b", "text": "El tipo de datos que la organización puede recopilar"}, {"id": "c", "text": "Los planes de copias seguridad para datos y posibles interrupciones"}, {"id": "d", "text": "Los procedimientos para archivar o borrar los datos"}], "correct": ["a"], "explanation": "En la sección «Acceso» del plan se definen los roles y permisos de quienes usan los datos y servidores."}, {"n": 12, "prompt": "Una empresa recopila datos personales durante el proceso de incorporación de nuevos empleados. Entre estos datos se incluyen los nombres, las direcciones, las fechas de nacimiento y la información financiera. Tras recopilar los datos, la empresa los protege de accesos y usos no autorizados. ¿Cuál es la clasificación del tipo de información que recopila la empresa?", "options": [{"id": "a", "text": "Información de identificación personal (PII)"}, {"id": "b", "text": "Need to know (NTK)"}, {"id": "c", "text": "Reglamento General de Protección de Datos (RGPD)"}, {"id": "d", "text": "Información de salud personal (PHI)"}], "correct": ["a"], "explanation": "Nombres, direcciones, fechas de nacimiento e información financiera son información de identificación personal (PII)."}, {"n": 13, "prompt": "Un director general de TI de una organización revisa el progreso de un proyecto de datos en el que trabaja el equipo de datos. El último informe de resumen demuestra que el equipo garantiza un mantenimiento adecuado de los datos y un almacenamiento seguro de los datos del proyecto. ¿Qué fase del ciclo de vida de los datos se refleja en el informe de resumen?", "options": [{"id": "a", "text": "Analizar"}, {"id": "b", "text": "Administrar"}, {"id": "c", "text": "Capturar"}, {"id": "d", "text": "Planificar"}], "correct": ["b"], "explanation": "Garantizar mantenimiento adecuado y almacenamiento seguro corresponde a la fase Administrar."}, {"n": 14, "prompt": "Un profesional de análisis de datos en la nube que trabaja con datos de proyectos recopiló datos para encontrar tendencias, crear visualizaciones y hacer recomendaciones basadas en la observación de los datos. Según el ciclo de vida de los datos, ¿cuál es la siguiente etapa para estos datos?", "options": [{"id": "a", "text": "Capturar los datos"}, {"id": "b", "text": "Administrar los datos"}, {"id": "c", "text": "Archivar los datos"}, {"id": "d", "text": "Analizar los datos"}], "correct": ["c"], "explanation": "Ciclo de vida: planificar, capturar, administrar, analizar, archivar, destruir. El caso ya describe el análisis (tendencias, visualizaciones, recomendaciones), así que sigue archivar."}, {"n": 15, "prompt": "Una organización busca un científico de datos. ¿Cuáles de las siguientes son las competencias y experiencias necesarias para este puesto?", "options": [{"id": "a", "text": "Experiencia en la transformación de datos en formatos útiles para el análisis y en la creación de infraestructuras de datos confiables"}, {"id": "b", "text": "Experiencia en investigación de datos, identificación de preguntas de negocio, recopilación de datos de múltiples fuentes y organización de datos para encontrar respuestas"}, {"id": "c", "text": "Experiencia en la recopilación, transformación y organización de datos para extraer conclusiones, hacer predicciones y tomar decisiones con conocimiento de causa"}, {"id": "d", "text": "Experiencia en la colaboración con diversos profesionales de datos para diseñar infraestructuras de bases de datos"}], "correct": ["b"], "explanation": "El científico de datos investiga, identifica preguntas de negocio, reúne datos de varias fuentes y los organiza para encontrar respuestas."}, {"n": 16, "prompt": "Eres el analista de datos de una empresa de venta minorista. Quieres analizar los datos de los clientes para identificar tendencias en sus comportamientos. ¿Cuál de los siguientes es uno de los beneficios de usar análisis de datos en la nube para esta tarea?", "options": [{"id": "a", "text": "Puedes personalizar las comunicaciones con los clientes."}, {"id": "b", "text": "Puedes agilizar la cadena de suministro."}, {"id": "c", "text": "Puedes reducir los costos de hardware y software."}, {"id": "d", "text": "Puedes acceder a grandes cantidades de datos de varias fuentes."}], "correct": ["d"], "explanation": "Una ventaja clave del análisis en la nube es acceder a grandes cantidades de datos de varias fuentes."}, {"n": 17, "prompt": "Eres el analista de datos de una empresa de venta minorista. Quieres analizar los datos de los clientes para identificar tendencias en sus comportamientos. ¿Cuál de los siguientes servicios de Google Cloud puedes usar para esta tarea?", "options": [{"id": "a", "text": "Cloud Data Fusion"}, {"id": "b", "text": "Looker"}, {"id": "c", "text": "Dataproc"}, {"id": "d", "text": "BigQuery"}], "correct": ["d"], "explanation": "BigQuery es el servicio de Google Cloud para almacenar y analizar grandes volúmenes de datos."}, {"n": 18, "prompt": "Un administrador analista de datos de una empresa en rápido crecimiento necesita encontrar una manera de administrar el acceso a los datos de forma más eficiente. ¿Qué debe hacer el administrador?", "options": [{"id": "a", "text": "Implementar un sistema de inicio de sesión único"}, {"id": "b", "text": "Implementar un sistema de control de acceso basado en políticas"}, {"id": "c", "text": "Implementar una lista de todas las políticas que necesitará el equipo"}, {"id": "d", "text": "Implementar un sistema de control de acceso basado en roles"}], "correct": ["d"], "explanation": "El control de acceso basado en roles (RBAC) permite administrar permisos de forma eficiente a medida que la empresa crece."}, {"n": 19, "prompt": "Un analista de datos de una empresa revisa los resultados de una encuesta para identificar errores o valores atípicos en los datos. Descubre que un participante tardó 26 horas en completar la encuesta. ¿Qué debe hacer el analista con este dato?", "options": [{"id": "a", "text": "Ignorar el dato"}, {"id": "b", "text": "Revisar la pregunta de la encuesta"}, {"id": "c", "text": "Anotar el dato en el informe"}, {"id": "d", "text": "Anotar la PII del participante"}], "correct": ["b"], "explanation": "Un valor atípico extremo puede indicar un problema en la pregunta o en la recolección: hay que revisarlo antes de descartarlo."}, {"n": 20, "prompt": "¿Cuál es el primer paso que debe dar un analista de datos cuando se le pide que responda a una solicitud de datos de la empresa?", "options": [{"id": "a", "text": "Evaluar la solicitud para comprender el objetivo o la conclusión deseada"}, {"id": "b", "text": "Recopilar los datos necesarios para responder a la solicitud de datos de la empresa"}, {"id": "c", "text": "Identificar los tipos de datos necesarios para la solicitud"}, {"id": "d", "text": "Limpiar y preparar los datos de la empresa para su análisis"}], "correct": ["a"], "explanation": "El primer paso es evaluar la solicitud para comprender el objetivo o la conclusión deseada."}, {"n": 27, "prompt": "Con la ayuda de los líderes de la organización, un gerente de administración de datos y su equipo inician un plan de administración de datos. ¿Cuál debería ser el siguiente objetivo del gerente?", "options": [{"id": "a", "text": "Definir las políticas de administración de datos"}, {"id": "b", "text": "Definir los roles y responsabilidades del equipo de administración de datos de forma clara"}, {"id": "c", "text": "Establecer lineamientos para la administración de datos de la empresa"}, {"id": "d", "text": "Automatizar y mejorar los procesos de administración de datos"}], "correct": ["b"], "explanation": "Con el apoyo de los líderes, lo siguiente es definir con claridad roles y responsabilidades del equipo."}, {"n": 56, "prompt": "Una organización desea asegurarse de que sus datos permanezcan seguros y protegidos, incluso durante una emergencia. ¿Qué uso común de la computación en la nube debería considerar?", "options": [{"id": "a", "text": "Análisis de datos a gran escala"}, {"id": "b", "text": "Recuperación ante desastres"}, {"id": "c", "text": "Servicios administrados"}, {"id": "d", "text": "Almacenamiento de datos"}], "correct": ["b"], "explanation": "La recuperación ante desastres mantiene los datos seguros incluso en una emergencia."}, {"n": 57, "prompt": "¿Qué tipo de almacenamiento en una infraestructura de computación en la nube mantiene los datos de una manera simple y fácil de entender mediante una jerarquía de archivos en carpetas?", "options": [{"id": "a", "text": "Almacenamiento en bloque"}, {"id": "b", "text": "Almacenamiento de metadatos"}, {"id": "c", "text": "Almacenamiento de objetos"}, {"id": "d", "text": "Almacenamiento de archivos"}], "correct": ["d"], "explanation": "El almacenamiento de archivos organiza los datos en carpetas jerárquicas."}, {"n": 58, "prompt": "Una empresa está desarrollando una nueva app. Necesita una plataforma que permita a sus desarrolladores centrarse únicamente en compilar la app sin considerar la infraestructura subyacente. ¿Qué modelo de servicio en la nube debería elegir la empresa?", "options": [{"id": "a", "text": "Infraestructura como servicio o IaaS"}, {"id": "b", "text": "Contenedores como servicio o CaaS"}, {"id": "c", "text": "Plataforma como servicio o PaaS"}, {"id": "d", "text": "Software como servicio o SaaS"}], "correct": ["c"], "explanation": "En PaaS los desarrolladores solo compilan la app; la infraestructura la gestiona el proveedor."}, {"n": 59, "prompt": "¿Cuál es una de las principales ventajas de la computación en la nube en relación con el acceso a los datos?", "options": [{"id": "a", "text": "Las organizaciones pueden acceder a los datos, el software, el almacenamiento y la infraestructura de nube, así como administrarlos, desde cualquier ubicación y en cualquier momento a través de Internet."}, {"id": "b", "text": "Las organizaciones pueden acceder a los datos, el software, el almacenamiento y la infraestructura que se alojan en servidores locales, así como administrarlos, a través de la intranet de la organización."}, {"id": "c", "text": "Las organizaciones deben estar conectadas a una red específica para acceder a sus datos."}, {"id": "d", "text": "Las organizaciones deben estar físicamente presentes en el lugar de instalación del hardware y del software para acceder a sus datos."}], "correct": ["a"], "explanation": "Se puede acceder y administrar todo desde cualquier lugar y momento por Internet."}, {"n": 60, "prompt": "¿Cuál es la función principal de BigQuery?", "options": [{"id": "a", "text": "Migrar almacenes de datos de otros proveedores de servicios en la nube"}, {"id": "b", "text": "Programar consultas para actualizar datos automáticamente"}, {"id": "c", "text": "Almacenar y analizar datos"}, {"id": "d", "text": "Verificar el proceso de razonamiento y el plan de una consulta"}], "correct": ["c"], "explanation": "BigQuery es el almacén de datos de Google Cloud para almacenar y analizar datos."}, {"n": 61, "prompt": "¿Qué es una nube pública?", "options": [{"id": "a", "text": "Un modelo de nube que permite a los usuarios agregar un proveedor de servicios en la nube pública a una infraestructura de procesamiento local existente"}, {"id": "b", "text": "Una combinación de los modelos público y privado que implica el uso de recursos tanto locales (tradicionales) como de computación en la nube"}, {"id": "c", "text": "Un modelo de nube que ofrece recursos informáticos, de almacenamiento y de red a través de Internet, y que se comparte entre varios usuarios y organizaciones"}, {"id": "d", "text": "Un modelo de nube que dedica todos los recursos de la nube a un solo usuario o una sola organización y que otorga los permisos de administrador con acceso total a esa única entidad"}], "correct": ["c"], "explanation": "La nube pública ofrece recursos por Internet compartidos entre varios usuarios y organizaciones."}, {"n": 62, "prompt": "Tienes una startup con recursos de TI limitados y deseas escalar rápidamente sus operaciones sin invertir en hardware físico ni mantenimiento. ¿Qué modelo de nube sería más adecuado para tu startup?", "options": [{"id": "a", "text": "Nube pública"}, {"id": "b", "text": "Nube privada"}, {"id": "c", "text": "Nube híbrida"}, {"id": "d", "text": "Nube local"}], "correct": ["a"], "explanation": "Para escalar rápido sin invertir en hardware ni mantenimiento, la nube pública es la opción."}, {"n": 63, "prompt": "Te das cuenta de que tu servicio de la nube funciona de forma eficiente sin demoras. ¿Qué componente de backend es probable que sea responsable de esta eficiencia?", "options": [{"id": "a", "text": "Entorno de ejecución de Cloud"}, {"id": "b", "text": "Almacenamiento"}, {"id": "c", "text": "Servicio"}, {"id": "d", "text": "Seguridad"}], "correct": ["a"], "explanation": "El entorno de ejecución de Cloud administra la ejecución y los recursos para que el servicio funcione sin demoras."}, {"n": 64, "prompt": "¿Cuál es la ventaja principal de la optimización de costos de la nube?", "options": [{"id": "a", "text": "Reducción de la emisión de carbono"}, {"id": "b", "text": "Reducción de la visibilidad de costos"}, {"id": "c", "text": "Aumento de emisiones de carbono"}, {"id": "d", "text": "Aumento del almacenamiento en la nube"}], "correct": ["a"], "explanation": "Entre los beneficios de optimizar costos en la nube está reducir la huella de carbono."}, {"n": 65, "prompt": "Una pequeña startup que tiene demandas impredecibles y un presupuesto limitado busca un proveedor de servicios en la nube. La empresa necesita un proveedor que le permita ajustar los recursos en función de sus necesidades cambiantes y que solo le cobre por los recursos que utiliza. ¿Qué modelo de aprovisionamiento de recursos debería elegir esta empresa?", "options": [{"id": "a", "text": "Aprovisionamiento avanzado"}, {"id": "b", "text": "Aprovisionamiento dinámico"}, {"id": "c", "text": "Aprovisionamiento fijo"}, {"id": "d", "text": "Autoaprovisionamiento"}], "correct": ["b"], "explanation": "El aprovisionamiento dinámico ajusta los recursos a la demanda y cobra solo lo usado."}, {"n": 66, "prompt": "Una organización está creando su plan de administración de datos. ¿Qué aspecto del plan de administración de datos de la empresa detallará los procedimientos para hacer copias de seguridad de la información o borrarla?", "options": [{"id": "a", "text": "Almacenamiento"}, {"id": "b", "text": "Archivos"}, {"id": "c", "text": "Tipos de datos"}, {"id": "d", "text": "Acceso"}], "correct": ["b"], "explanation": "El aspecto «Archivos» detalla copias de seguridad y borrado de información."}, {"n": 67, "prompt": "Un profesional de análisis de datos en la nube de una empresa en crecimiento está creando el plan de administración de datos de dicho negocio. ¿Qué aspecto del plan de administración de datos define los roles de las personas que accederán a la información de la empresa?", "options": [{"id": "a", "text": "Almacenamiento"}, {"id": "b", "text": "Acceso"}, {"id": "c", "text": "Archivos"}, {"id": "d", "text": "Tipos de datos"}], "correct": ["b"], "explanation": "«Acceso» define los roles de quienes acceden a la información."}, {"n": 68, "prompt": "Un profesional de análisis de datos en la nube que trabaja en un proyecto comienza el proceso de considerar cómo almacenar los datos, priorizar la seguridad y trabajar con información de identificación personal. ¿En qué etapa de su ciclo de vida se encuentran actualmente los datos del proyecto?", "options": [{"id": "a", "text": "Administración"}, {"id": "b", "text": "Archivo"}, {"id": "c", "text": "Análisis"}, {"id": "d", "text": "Captura"}], "correct": ["a"], "explanation": "Almacenar, priorizar la seguridad y manejar PII corresponde a la etapa Administración."}, {"n": 69, "prompt": "Una organización determina que ciertos datos ya no son útiles. ¿Qué acción debería tomar a continuación para respaldar mejor los lineamientos de protección de la privacidad y satisfacer otros requisitos y reglamentaciones de cumplimiento?", "options": [{"id": "a", "text": "Analizar los datos"}, {"id": "b", "text": "Destruir los datos"}, {"id": "c", "text": "Administrar los datos"}, {"id": "d", "text": "Archivar los datos"}], "correct": ["b"], "explanation": "Cuando los datos dejan de ser útiles, lo adecuado para privacidad y cumplimiento es destruirlos."}, {"n": 70, "prompt": "Un profesional de datos está buscando oportunidades de empleo. Es muy hábil para escribir secuencias de comandos y compilar modelos de datos. También le gusta la investigación de datos y ayudar a las organizaciones a responder preguntas empresariales. ¿Para qué tipo de función relacionada con los datos resultaría ideal este profesional?", "options": [{"id": "a", "text": "Analista de datos"}, {"id": "b", "text": "Científico de datos"}, {"id": "c", "text": "Arquitecto de datos"}, {"id": "d", "text": "Ingeniero de datos"}], "correct": ["b"], "explanation": "Escribir scripts, compilar modelos y responder preguntas de negocio investigando datos describe a un científico de datos."}, {"n": 71, "prompt": "Una empresa entrevista a una serie de candidatos para diversas funciones relacionadas con los datos. Uno de ellos se especializa en analizar datos y revisar bases de datos. También domina varios lenguajes de programación y tiene experiencia en crear visualizaciones y presentar hallazgos ante partes interesadas y miembros del equipo. ¿Qué función relacionada con los datos resultaría más adecuada para este profesional?", "options": [{"id": "a", "text": "Analista de datos"}, {"id": "b", "text": "Científico de datos"}, {"id": "c", "text": "Ingeniero de datos"}, {"id": "d", "text": "Arquitecto de datos"}], "correct": ["a"], "explanation": "Analizar datos, crear visualizaciones y presentar hallazgos corresponde al analista de datos."}, {"n": 72, "prompt": "¿Cuál de los siguientes conjuntos de reglamentaciones y estándares se aplican a las organizaciones que tratan datos personales de ciudadanos de la Unión Europea?", "options": [{"id": "a", "text": "Ley de Responsabilidad y Portabilidad de Seguros Médicos"}, {"id": "b", "text": "Ley Sarbanes-Oxley"}, {"id": "c", "text": "Normas de Seguridad de Datos de la Industria de Tarjetas de Pago"}, {"id": "d", "text": "Reglamento General de Protección de Datos"}], "correct": ["d"], "explanation": "El RGPD (GDPR) aplica a datos personales de ciudadanos de la Unión Europea."}, {"n": 73, "prompt": "El gerente de un equipo de datos establece un proceso para controlar las versiones de los datos. Esta iniciativa respalda las tareas de control de calidad. ¿Cuáles son otros dos beneficios de controlar las versiones de los datos?", "options": [{"id": "a", "text": "Agilizar la carga de datos"}, {"id": "b", "text": "Abordar inquietudes de cumplimiento"}, {"id": "c", "text": "Revertir los datos a una versión anterior"}, {"id": "d", "text": "Preservar los datos indefinidamente"}, {"id": "e", "text": "Prevenir las eliminaciones accidentales"}], "correct": ["b", "c"], "explanation": "El control de versiones ayuda a abordar inquietudes de cumplimiento y permite revertir a una versión anterior."}, {"n": 74, "prompt": "Un administrador de análisis de datos que trabaja en una gran empresa de computación en la nube es responsable de configurar los controles de acceso a los datos de un nuevo proyecto que involucra información sensible de los clientes. ¿Cuál de las siguientes opciones es la práctica recomendada para implementar controles de acceso a la información en un almacén de datos en la nube?", "options": [{"id": "a", "text": "Crear un grupo de seguridad aparte para cada rol del proyecto y otorgar a cada grupo solo los permisos que necesita"}, {"id": "b", "text": "Permitir que todos los usuarios accedan a todos los datos, pero supervisar de cerca su actividad para detectar cualquier comportamiento sospechoso"}, {"id": "c", "text": "Crear un único grupo de seguridad para todos los usuarios del proyecto y otorgarles acceso universal a todos los datos"}, {"id": "d", "text": "Crear un grupo de seguridad aparte para cada usuario del proyecto y otorgar a cada grupo solo los permisos que necesita"}], "correct": ["a"], "explanation": "Un grupo de seguridad por rol, con solo los permisos necesarios, sigue el principio de mínimo privilegio."}, {"n": 75, "prompt": "Se solicitó a un profesional de datos que buscara una única herramienta para ayudar al equipo de datos de la empresa a organizar la información comercial, crear flujos de trabajo y aplicaciones, y generar informes y visualizaciones. ¿Qué herramienta de datos debería sugerir este profesional?", "options": [{"id": "a", "text": "Dataproc"}, {"id": "b", "text": "BigLake"}, {"id": "c", "text": "Looker"}, {"id": "d", "text": "Dataflow"}], "correct": ["c"], "explanation": "Looker organiza información comercial, crea flujos de trabajo y aplicaciones, y genera informes y visualizaciones."}, {"n": 76, "prompt": "El proceso de responder a una solicitud de datos de la empresa tiene varios pasos. ¿Qué tarea de datos se llevaría a cabo después de completar la fase de limpieza de datos?", "options": [{"id": "a", "text": "Eliminar los registros repetidos"}, {"id": "b", "text": "Tratamiento de datos"}, {"id": "c", "text": "Comprobar si existen valores atípicos"}, {"id": "d", "text": "Desglosar el conjunto de datos"}], "correct": ["c"], "explanation": "Después de limpiar, se comprueba si existen valores atípicos."}, {"n": 77, "prompt": "Un profesional responde a una solicitud de datos de la empresa. En primer lugar, completa la etapa de limpieza de datos. Luego, empieza a comprobar los datos para encontrar valores atípicos. ¿Qué métodos ayudarían al profesional de datos a revisar los datos recopilados?", "options": [{"id": "a", "text": "Eliminar informes repetidos"}, {"id": "b", "text": "Crear visualizaciones de datos"}, {"id": "c", "text": "Integrar varias fuentes de datos"}, {"id": "d", "text": "Definir segmentos específicos"}, {"id": "e", "text": "Comprobar las estadísticas de resumen"}], "correct": ["b", "e"], "explanation": "Las visualizaciones y las estadísticas de resumen ayudan a detectar valores atípicos."}, {"n": 79, "prompt": "Un equipo de la nube tomó la decisión de usar Google Cloud Storage como una herramienta de administración de datos. En una reunión, el director de una empresa pregunta por qué el equipo tomó esta decisión. ¿Cuál de las siguientes afirmaciones admite la decisión del equipo de datos?", "options": [{"id": "a", "text": "Google Cloud Storage le permite al equipo de la nube mover las bases de datos de aplicaciones, estadísticas y herramientas de ciencia de datos de la empresa a un único lugar."}, {"id": "b", "text": "Google Cloud Storage le permite al equipo de la nube escribir consultas en SQL para unir y limpiar datos con el fin de asegurarse de que estén integrados."}, {"id": "c", "text": "Google Cloud Storage le permite al equipo de la nube transmitir datos desde varias aplicaciones de la empresa a una base de datos."}, {"id": "d", "text": "Google Cloud Storage aloja datos de servidores remotos, incluidas las bases de datos de aplicaciones, estadísticas y herramientas, todo en un solo lugar."}, {"id": "e", "text": "Google Cloud Storage le permite al equipo de la nube crear integraciones de datos, ejecutar altos volúmenes de canalización de datos y llevar a cabo integraciones continuas de datos del usuario."}], "correct": ["d"], "explanation": "Cloud Storage aloja datos de servidores remotos, bases de datos de aplicaciones y herramientas, todo en un solo lugar."}, {"n": 80, "prompt": "Un equipo de datos de la empresa crea una guía de datos para ayudar en la incorporación de nuevos miembros al equipo. ¿Cuál de los siguientes elementos debería detallar el equipo en su documento?", "options": [{"id": "a", "text": "Cómo otorgar acceso a los datos a otros"}, {"id": "b", "text": "Cómo aplicar a un puesto en el equipo de datos"}, {"id": "c", "text": "Cómo programar y enviar solicitudes de licencia laboral"}, {"id": "d", "text": "Cómo escribir código en bases de datos en SQL"}], "correct": ["a"], "explanation": "Una guía de incorporación debe explicar, entre otras cosas, cómo otorgar acceso a los datos."}, {"n": 81, "prompt": "¿Qué les permite hacer la función de relación superior-secundario de un sistema de tickets a los usuarios?", "options": [{"id": "a", "text": "Permite al usuario iniciar tickets nuevos para cada interacción con el objetivo de que los usuarios no trabajen en el ticket al mismo tiempo y, de esta manera, evitar que haya errores."}, {"id": "b", "text": "Permite a los usuarios dividir un ticket en subtickets más pequeños en los que se puede trabajar al mismo tiempo, a veces con distintos miembros del equipo."}, {"id": "c", "text": "Permite a los usuarios editar todos los tickets previos para cada interacción con el objetivo de actualizar los usuarios que podrían trabajar en los tickets."}, {"id": "d", "text": "Permite que se asignen los usuarios a un solo ticket al mismo tiempo que siguen trabajando en problemas independientes que están asignados al grupo."}], "correct": ["b"], "explanation": "La relación superior-secundario divide un ticket en subtickets en los que se puede trabajar en paralelo."}, {"n": 90, "prompt": "Un equipo interdepartamental está desarrollando el plan de administración de datos de su organización. El equipo está estableciendo las políticas, prácticas y protocolos para controlar la información de identificación personal (PII). ¿De qué elemento esencial del plan de administración de datos forma parte este tema?", "options": [{"id": "a", "text": "Administración de calidad de los datos"}, {"id": "b", "text": "Políticas y normas de datos"}, {"id": "c", "text": "Seguridad y privacidad de los datos"}, {"id": "d", "text": "Administración y propiedad de los datos"}], "correct": ["c"], "explanation": "Controlar la PII forma parte de la seguridad y privacidad de los datos."}, {"n": 120, "prompt": "Un equipo de datos está planeando un proyecto que implica un gran conjunto de datos. Como paso siguiente, debe evaluar los recursos necesarios para el proyecto. ¿Qué recursos debería administrar de forma eficaz para no pagar tarifas innecesarias?", "options": [{"id": "a", "text": "Silos"}, {"id": "b", "text": "Datos"}, {"id": "c", "text": "Herramientas"}, {"id": "d", "text": "Almacenamiento"}], "correct": ["d"], "explanation": "Administrar bien el almacenamiento evita pagar tarifas innecesarias."}]</script>
+<script>
+(function(){
+'use strict';
+const slides=Array.from(document.querySelectorAll('.slide'));
+const $=id=>document.getElementById(id);
+let current=0;
+function showSlide(i){if(i<0||i>=slides.length)return;slides[current].classList.remove('active');current=i;const s=slides[i];s.classList.add('active');s.scrollTop=0;$('slideCounter').textContent=(i+1)+' / '+slides.length;$('phaseLabel').textContent=s.dataset.phase||'Repaso';$('progressFill').style.width=((i+1)/slides.length*100)+'%';$('prevBtn').disabled=(i===0);$('nextBtn').disabled=(i===slides.length-1);$('nextBtn').textContent=i===slides.length-1?'Fin del repaso ✓':'Siguiente →';closeNotes();if(location.hash!=='#'+(i+1))history.replaceState(null,'','#'+(i+1));}
+function closeNotes(){$('teacherNotes').hidden=true;$('notesToggle').setAttribute('aria-expanded','false')}
+function toggleNotes(){const wasHidden=$('teacherNotes').hidden;$('teacherNotes').hidden=!wasHidden;$('notesToggle').setAttribute('aria-expanded',String(wasHidden));$('notesText').textContent=slides[current].dataset.note||'Sin notas para esta diapositiva.';}
+$('nextBtn').addEventListener('click',()=>showSlide(current+1));
+$('prevBtn').addEventListener('click',()=>showSlide(current-1));
+$('notesToggle').addEventListener('click',toggleNotes);
+
+/* ---------- Práctica ---------- */
+const QS=JSON.parse($('qdata').textContent);
+const KEY='dw-practica-'+document.body.dataset.deck;
+const quizIndex=slides.indexOf($('quizSlide'));
+let state=QS.map(()=>({sel:[],done:false,ok:false}));
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&saved.length===QS.length)state=saved;}catch(err){}
+let order=QS.map((_,i)=>i),pos=0,mode='Modo: todas las preguntas, en orden.';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(err){}};
+function updateScore(){const answered=state.filter(s=>s.done).length,ok=state.filter(s=>s.ok).length;$('qScore').textContent=ok+' / '+answered;$('qScoreSub').textContent=answered+' de '+QS.length+' respondidas'+(answered?' · '+Math.round(ok/answered*100)+'% de acierto':'');$('scoreDisplay').textContent=ok+' / '+answered;$('qWrong').disabled=!state.some(s=>s.done&&!s.ok);
+  document.querySelectorAll('.pq button').forEach(b=>{const k=QS.findIndex(q=>q.n===Number(b.dataset.goq));b.classList.toggle('ok',k>=0&&state[k].done&&state[k].ok);b.classList.toggle('ko',k>=0&&state[k].done&&!state[k].ok)});}
+function letter(id){return id.toUpperCase()}
+function renderQ(){
+  const i=order[pos],q=QS[i],st=state[i],multi=q.correct.length>1;
+  $('qNum').textContent='PREGUNTA '+q.n+' DEL BANCO';
+  $('qPos').textContent=(pos+1)+' / '+order.length;
+  $('qPrompt').textContent=q.prompt;
+  $('qMulti').hidden=!multi||/dos respuestas/i.test(q.prompt);
+  const box=$('qOpts');box.innerHTML='';
+  q.options.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='opt';b.dataset.id=o.id;b.innerHTML='<span class="letter"></span><span class="otext"></span>';b.querySelector('.letter').textContent=letter(o.id);b.querySelector('.otext').textContent=o.text;
+    if(st.sel.includes(o.id))b.classList.add('sel');
+    if(st.done){b.disabled=true;b.classList.remove('sel');if(q.correct.includes(o.id))b.classList.add('ok');else if(st.sel.includes(o.id))b.classList.add('ko');}
+    b.addEventListener('click',()=>choose(o.id));box.appendChild(b)});
+  const fb=$('qFeedback');
+  if(st.done){const right=q.correct.map(letter).join(' y ');fb.className='result '+(st.ok?'good':'bad');fb.innerHTML='<div class="result-icon">'+(st.ok?'✓':'×')+'</div><div><div class="result-text"></div><div class="explain"></div></div>';fb.querySelector('.result-text').textContent=st.ok?'¡Correcto!':'Incorrecto · '+(multi?'las correctas son ':'la correcta es ')+right;fb.querySelector('.explain').textContent=q.explanation;}
+  else{fb.className='result unknown';fb.innerHTML='<div class="result-icon">?</div><div><div class="result-text"></div><div class="explain">La explicación aparece al responder.</div></div>';fb.querySelector('.result-text').textContent=multi?('Elegí dos opciones ('+st.sel.length+'/2).'):'Elegí una opción.';}
+  $('qPrev').disabled=pos===0;$('qNext').disabled=pos===order.length-1;
+  const dots=$('qDots');dots.innerHTML='';
+  QS.forEach((qq,k)=>{const d=document.createElement('button');d.type='button';d.className='dot'+(state[k].done?(state[k].ok?' ok':' ko'):'')+(k===i?' cur':'');d.textContent=qq.n;d.title='Pregunta '+qq.n;d.addEventListener('click',()=>goQuestion(qq.n));dots.appendChild(d)});
+  $('qMode').textContent=mode;
+  updateScore();
+}
+function choose(id){const i=order[pos],q=QS[i],st=state[i];if(st.done)return;
+  if(q.correct.length===1){st.sel=[id]}else{st.sel=st.sel.includes(id)?st.sel.filter(x=>x!==id):st.sel.concat(id)}
+  if(st.sel.length===q.correct.length){st.done=true;st.ok=st.sel.every(x=>q.correct.includes(x));save();}
+  renderQ();}
+function goQuestion(n){let k=QS.findIndex(q=>q.n===n);if(k<0)return;if(!order.includes(k)){order=QS.map((_,i)=>i);mode='Modo: todas las preguntas, en orden.'}pos=order.indexOf(k);renderQ();if(current!==quizIndex)showSlide(quizIndex);}
+function move(d){const p=pos+d;if(p<0||p>=order.length)return false;pos=p;renderQ();return true}
+$('qPrev').addEventListener('click',()=>move(-1));
+$('qNext').addEventListener('click',()=>move(1));
+$('qWrong').addEventListener('click',()=>{const w=QS.map((_,i)=>i).filter(i=>state[i].done&&!state[i].ok);if(!w.length)return;w.forEach(i=>state[i]={sel:[],done:false,ok:false});order=w;pos=0;mode='Modo: repasando '+w.length+' pregunta(s) falladas.';save();renderQ()});
+$('qShuffle').addEventListener('click',()=>{order=QS.map((_,i)=>i);for(let k=order.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[order[k],order[j]]=[order[j],order[k]]}pos=0;mode='Modo: todas las preguntas, orden aleatorio.';renderQ()});
+$('qReset').addEventListener('click',()=>{state=QS.map(()=>({sel:[],done:false,ok:false}));order=QS.map((_,i)=>i);pos=0;mode='Modo: todas las preguntas, en orden.';save();renderQ()});
+$('startQuiz').addEventListener('click',()=>{const k=state.findIndex(s=>!s.done);order=QS.map((_,i)=>i);pos=k<0?0:k;renderQ();showSlide(quizIndex)});
+document.querySelectorAll('[data-goq]').forEach(b=>b.addEventListener('click',()=>goQuestion(Number(b.dataset.goq))));
+
+document.addEventListener('keydown',ev=>{
+  const el=document.activeElement;const editing=el && ['INPUT','TEXTAREA','SELECT'].includes(el.tagName);
+  if(editing && !['Escape'].includes(ev.key))return;
+  if(ev.ctrlKey||ev.metaKey||ev.altKey)return;
+  const inQuiz=current===quizIndex;
+  const k=ev.key.toLowerCase();
+  if(inQuiz && /^[a-e1-5]$/.test(k)){const i=order[pos],q=QS[i];const idx=/[1-5]/.test(k)?Number(k)-1:k.charCodeAt(0)-97;if(q.options[idx]){ev.preventDefault();choose(q.options[idx].id)}return}
+  if(ev.key==='ArrowRight'||(ev.key===' ' && el===document.body)){ev.preventDefault();if(!(inQuiz&&move(1)))showSlide(current+1)}
+  else if(ev.key==='ArrowLeft'){ev.preventDefault();if(!(inQuiz&&move(-1)))showSlide(current-1)}
+  else if(ev.key==='Home'){ev.preventDefault();showSlide(0)}
+  else if(ev.key==='End'){ev.preventDefault();showSlide(slides.length-1)}
+  else if(k==='f'){ev.preventDefault();if(document.fullscreenElement){document.exitFullscreen?.()}else{document.getElementById('app').requestFullscreen?.().catch(()=>{})}}
+  else if(k==='n'){ev.preventDefault();toggleNotes()}
+  else if(ev.key==='Escape'){closeNotes()}
+});
+renderQ();
+const start=parseInt(location.hash.slice(1),10);
+showSlide(start>=1&&start<=slides.length?start-1:0);
+})();
+</script>
+<script src="lectura.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es-UY">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Curso 3 · Transformación de datos · Data Warehousing</title>
+<style>
+:root{--bg:#081322;--bg2:#0c1d32;--panel:#10243a;--panel2:#132c47;--line:rgba(177,216,249,.20);--text:#f4f8ff;--muted:#b5c8de;--cyan:#73e1ed;--blue:#8ab6ff;--green:#8ce8b4;--red:#ff9a9a;--yellow:#ffdc8d;--violet:#c2a9ff;--radius:20px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
+button,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid var(--yellow);outline-offset:4px}
+button:disabled{opacity:.35;cursor:not-allowed}
+.app{height:100vh;height:100dvh;display:grid;grid-template-rows:64px minmax(0,1fr) 77px;background:radial-gradient(circle at 92% 9%,rgba(41,91,161,.24),transparent 34%),radial-gradient(circle at 7% 88%,rgba(23,124,141,.12),transparent 33%),linear-gradient(142deg,#07111e,#0b1a2d 62%,#071220)}
+.topbar,.bottom{display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,3vw,56px);gap:16px}
+.topbar{border-bottom:1px solid var(--line);background:rgba(8,19,34,.5)}
+.brand{display:flex;align-items:center;gap:12px;font-size:clamp(13px,1.12vw,17px);font-weight:780;letter-spacing:.01em;white-space:nowrap}
+.brandmark{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#092132;font-weight:900;font-size:16px}
+.top-right{display:flex;align-items:center;gap:16px;white-space:nowrap;color:var(--muted);font-size:clamp(12px,1vw,15px)}
+.sectiontag{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:850}
+.stage{position:relative;min-height:0;overflow:hidden}
+.slide{display:none;position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:clamp(16px,2.5vh,32px) clamp(28px,5vw,92px) clamp(18px,3vh,36px);scrollbar-color:#36516b transparent}
+.slide.active{display:flex;align-items:center;justify-content:center}
+.slide-inner{width:100%;max-width:1530px;margin:auto}
+.slide-inner.narrow{max-width:1200px}
+.kicker{color:var(--cyan);font-size:clamp(12px,1.05vw,18px);font-weight:850;letter-spacing:.17em;text-transform:uppercase;margin:0 0 12px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(54px,6.1vw,102px);letter-spacing:-.065em;line-height:.98;margin-bottom:25px;font-weight:860;max-width:1070px}
+h2{font-size:clamp(37px,4.25vw,68px);letter-spacing:-.056em;line-height:1.07;margin-bottom:18px;font-weight:830}
+h3{font-size:clamp(20px,1.8vw,29px);line-height:1.18;margin-bottom:12px}
+.lead{font-size:clamp(20px,2vw,32px);line-height:1.42;color:var(--muted);max-width:1120px;margin-bottom:24px}
+.big-lead{font-size:clamp(23px,2.5vw,40px);line-height:1.38;max-width:1060px}
+.accent{color:var(--cyan)}.accent-alt{color:var(--yellow)}
+.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.chip{border:1px solid rgba(115,225,237,.32);color:#c8f8ff;border-radius:999px;background:rgba(115,225,237,.09);font-size:clamp(13px,1.08vw,17px);font-weight:780;padding:10px 16px}
+.panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.3vw,22px);align-items:stretch;margin-top:20px}
+.panels.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panels.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.panel{border:1px solid var(--line);background:linear-gradient(160deg,rgba(20,47,72,.88),rgba(11,30,49,.92));border-radius:var(--radius);padding:clamp(17px,1.85vw,30px);min-width:0;box-shadow:0 14px 32px rgba(0,0,0,.10)}
+.panel.soft{background:rgba(21,44,66,.58)}
+.panel-title{font-size:clamp(15px,1.25vw,21px);font-weight:800;margin-bottom:12px;color:#d9e9fb}
+.panel p,.panel li{font-size:clamp(17px,1.45vw,23px);line-height:1.42;color:#d6e5f3;margin-bottom:8px}
+.panel .small{font-size:clamp(14px,1.1vw,17px);color:var(--muted)}
+.big-number{font-size:clamp(36px,3.9vw,66px);font-weight:850;line-height:1;color:var(--cyan)}
+.question{font-size:clamp(21px,2.25vw,37px);font-weight:690;line-height:1.34;margin-bottom:14px}
+.statement{font-size:clamp(22px,2.1vw,35px);font-weight:750;line-height:1.36}
+.rule{border:1px solid rgba(115,225,237,.38);background:rgba(50,116,144,.14);border-radius:16px;padding:16px 21px;font-size:clamp(20px,2.0vw,32px);font-weight:800;line-height:1.45;letter-spacing:-.02em;margin:14px 0}
+.rule.compact{font-size:clamp(18px,1.7vw,28px)}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;letter-spacing:-.025em}
+.callout{background:rgba(255,220,141,.09);border-left:4px solid var(--yellow);padding:14px 22px;border-radius:0 13px 13px 0;font-size:clamp(17px,1.5vw,24px);line-height:1.4;color:#ffedc1;margin-top:18px}
+.centered{text-align:center}.centered .lead{margin-left:auto;margin-right:auto}.centered .chip-row{justify-content:center}
+.big-btn,.answer-btn,.choice-btn,.subtle-btn{border:1px solid rgba(115,225,237,.36);border-radius:15px;padding:13px 20px;color:var(--text);background:#174360;font-weight:790;font-size:clamp(16px,1.28vw,20px);transition:background .16s,border-color .16s,transform .16s;min-height:48px}
+.big-btn:hover,.answer-btn:hover,.choice-btn:hover,.subtle-btn:hover{background:#205574;border-color:var(--cyan)}
+.big-btn:active,.choice-btn:active{transform:translateY(1px)}
+.big-btn.primary{background:var(--cyan);color:#092332;border-color:var(--cyan)}
+.big-btn.primary:hover{background:#a3f5f7}
+.answer-btn{background:rgba(28,69,95,.4)}
+.choice-btn.selected{color:#092332;background:var(--cyan);border-color:var(--cyan)}
+.subtle-btn{background:rgba(18,49,72,.55);font-size:clamp(14px,1.08vw,17px);padding:10px 15px}
+.button-row{display:flex;flex-wrap:wrap;gap:13px;align-items:center;margin-top:17px}
+.inline-note{font-size:clamp(14px,1.08vw,17px);line-height:1.4;color:var(--muted)}
+.switchbox{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:14px;background:rgba(9,27,47,.73);padding:14px 18px;font-size:clamp(17px,1.32vw,23px);font-weight:760;margin:8px 0}
+.switchbox button{flex-shrink:0;min-width:90px;border:1px solid rgba(255,255,255,.25);background:#293a4c;border-radius:12px;color:#d3dce8;padding:10px 12px;font-size:clamp(16px,1.3vw,22px);font-weight:850}
+.switchbox button.is-on{border-color:var(--green);background:#174b3a;color:#a5f9c5}
+.switchbox button.is-off{border-color:rgba(255,154,154,.4);color:#ffd0d0}
+.result{display:flex;gap:16px;align-items:center;border-radius:15px;padding:17px 20px;margin-top:14px;min-height:75px;background:rgba(63,85,111,.22);border:1px solid var(--line)}
+.result.good{border-color:rgba(140,232,180,.55);background:rgba(44,113,79,.20)}
+.result.bad{border-color:rgba(255,154,154,.5);background:rgba(132,54,68,.20)}
+.result.unknown{color:var(--muted)}
+.result .result-icon{font-size:clamp(26px,2.8vw,45px);font-weight:900}
+.result .result-text{font-size:clamp(18px,1.55vw,27px);font-weight:790;line-height:1.25}
+.result .explain{font-size:clamp(14px,1.1vw,17px);color:var(--muted);font-weight:480;margin-top:5px}
+.steps{counter-reset:step;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.step{opacity:.27;transition:opacity .2s,border-color .2s;border:1px solid var(--line);background:var(--panel);border-radius:15px;padding:16px 20px;display:flex;align-items:center;gap:18px;font-size:clamp(17px,1.55vw,25px);min-height:72px}
+.step.visible{opacity:1;border-color:rgba(115,225,237,.42)}
+.step-index{font-size:clamp(22px,2.1vw,34px);font-weight:850;color:var(--cyan)}
+.scenario-number{font-size:clamp(12px,.95vw,16px);font-weight:900;color:var(--cyan);letter-spacing:.13em;margin-bottom:9px}
+.truth-bit{display:inline-flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-weight:850;color:#10243a;border-radius:7px;width:38px;height:38px;font-size:23px;background:var(--green)}
+.truth-bit.false{background:var(--red)}
+.hint{color:var(--muted);font-size:clamp(15px,1.18vw,20px);line-height:1.4}
+.hidden-answer[hidden],.model-solution[hidden]{display:none !important}
+.hidden-answer{padding:13px 16px;background:rgba(140,232,180,.08);border:1px solid rgba(140,232,180,.3);border-radius:12px;color:#d5ffe7;margin-top:14px;font-size:clamp(16px,1.3vw,21px);line-height:1.45}
+.grid-test{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.test-card{padding:15px 18px;border-radius:14px;background:rgba(10,32,52,.79);border:1px solid var(--line)}
+.test-card .case-values{font-family:ui-monospace,monospace;font-size:clamp(17px,1.3vw,22px);line-height:1.45;color:#e2efff}
+.test-feedback{margin-top:7px;color:var(--yellow);font-weight:800;font-size:clamp(15px,1.2vw,20px)}
+pre.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#081321;border:1px solid rgba(138,182,255,.30);border-radius:15px;color:#d7eaff;padding:18px 23px;font-size:clamp(17px,1.45vw,23px);line-height:1.52;margin:12px 0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.editor-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:12px 0}
+select{color:var(--text);border:1px solid rgba(115,225,237,.45);border-radius:12px;background:#153a55;padding:10px 14px;min-width:120px;font-weight:800;font-size:clamp(16px,1.2vw,20px)}
+.checkbox-line{display:flex;align-items:center;gap:9px;font-size:clamp(17px,1.2vw,20px);color:#e5f2ff;font-weight:650}
+.checkbox-line input{width:23px;height:23px;accent-color:#73e1ed}
+.bottom{border-top:1px solid var(--line);background:rgba(6,18,32,.9)}
+.nav-left,.nav-right{display:flex;align-items:center;gap:12px}
+.nav-btn{border:1px solid rgba(171,217,248,.28);background:#142a43;color:var(--text);font-size:clamp(14px,1.05vw,18px);padding:12px 20px;border-radius:12px;font-weight:820;min-height:45px;white-space:nowrap}
+.nav-btn:hover:not(:disabled){background:#1c405c;border-color:var(--cyan)}
+.nav-btn.next{background:var(--cyan);color:#082331;border-color:var(--cyan)}
+.nav-btn.next:hover:not(:disabled){background:#a5f7fa}
+.slide-counter{font-weight:870;font-variant-numeric:tabular-nums;font-size:clamp(16px,1.2vw,20px);min-width:72px;text-align:center}
+.timebox{display:flex;align-items:center;gap:9px;font-variant-numeric:tabular-nums}
+.timer{color:var(--yellow);font-size:clamp(18px,1.35vw,23px);font-weight:900;letter-spacing:.035em;min-width:62px;text-align:center}
+.tiny{font-size:clamp(12px,1vw,15px);color:var(--muted)}
+.progress-track{position:absolute;height:4px;left:0;right:0;bottom:0;background:rgba(255,255,255,.10)}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#69e4ee,#b3a0ff);transition:width .28s}
+.notes{position:fixed;z-index:30;right:20px;bottom:90px;width:min(480px,calc(100vw - 40px));max-height:65vh;overflow:auto;background:#f6f8fc;color:#14263c;padding:22px 25px;border-radius:17px;box-shadow:0 20px 70px rgba(0,0,0,.58);border:3px solid var(--cyan)}
+.notes[hidden]{display:none}
+.notes h3{font-size:22px}.notes p{font-size:17px;line-height:1.5;color:#243b56}
+.footer-helper{font-size:13px;color:#95abc0}
+.svg-flow{width:100%;max-width:660px;max-height:330px;display:block;margin:auto}
+.illustration{width:100%;height:auto;max-height:300px}
+@media(max-width:1100px){.panels.four .panel{padding:12px 14px}.panels.four .panel p{font-size:17px;line-height:1.24;margin-bottom:3px}.panels.four .panel .rule{font-size:19px;margin:5px 0;padding:7px 11px}.panels.four .panel .answer-btn{padding:9px 13px;min-height:38px;font-size:15px}.panel{padding:17px}.panels.four{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-helper{display:none}.app{grid-template-rows:54px minmax(0,1fr) 69px} .slide{padding:17px 30px}}
+@media(max-width:680px){.app{grid-template-rows:50px minmax(0,1fr) 65px}.topbar,.bottom{padding:0 12px}.top-right .sectiontag{display:none}.slide{padding:22px 17px}.panels,.panels.three,.panels.four,.grid-test{grid-template-columns:1fr}.panel p,.panel li{font-size:18px}h1{font-size:50px}h2{font-size:38px}.nav-btn{padding:8px 11px;min-height:40px}.nav-left{gap:5px}.nav-right{gap:5px}.nav-btn.timer-toggle{display:none}.timebox .tiny{display:none}.slide-counter{min-width:53px}.brand{font-size:12px}.brandmark{width:25px;height:25px}.top-right{font-size:11px}}
+@media(max-height:720px) and (min-width:681px){.slide{padding-top:12px;padding-bottom:14px}.kicker{margin-bottom:7px}h2{margin-bottom:10px}.lead{margin-bottom:12px}.panels{margin-top:10px}.panel{padding:16px}.panel p{line-height:1.28}.callout{margin-top:8px;padding:9px 15px}.big-btn{padding:10px 17px;min-height:42px}.result{min-height:60px;padding:10px 14px}.rule{margin:8px 0;padding:10px 17px}.steps{margin:12px 0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* ===== Agregados para los repasos de Data Warehousing (mismo sistema visual) ===== */
+.brandmark.dw{font-size:12px;letter-spacing:-.02em}
+.top-right a,.nav-left a{color:var(--muted);text-decoration:none}
+.top-right a:hover,.nav-left a:hover{color:var(--cyan)}
+.pq{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;padding:8px 12px;border-radius:13px;border:1px dashed rgba(255,220,141,.55);background:rgba(255,220,141,.07);color:#ffedc1;font-size:clamp(13px,1vw,16px);font-weight:800}
+.pq .pq-label{letter-spacing:.13em;text-transform:uppercase;font-size:.78em;color:var(--yellow);font-weight:900}
+.pq button{border:1px solid rgba(255,220,141,.45);background:rgba(255,220,141,.12);color:#fff3d1;border-radius:999px;padding:4px 11px;font-weight:850;font-size:inherit;font-variant-numeric:tabular-nums}
+.pq button:hover{background:rgba(255,220,141,.3);border-color:var(--yellow)}
+.pq button.ok{background:#174b3a;border-color:var(--green);color:#a5f9c5}
+.pq button.ko{background:#512935;border-color:var(--red);color:#ffd0d0}
+table.cmp{width:100%;border-collapse:separate;border-spacing:0;margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:clamp(14px,1.18vw,19px)}
+table.cmp th,table.cmp td{padding:10px 15px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.36}
+table.cmp thead th{background:#123049;color:var(--cyan);font-size:.82em;letter-spacing:.08em;text-transform:uppercase;font-weight:900}
+table.cmp tbody th{color:#e6f1ff;font-weight:820;background:rgba(19,44,71,.6)}
+table.cmp td{color:#d6e5f3;background:rgba(11,30,49,.55)}
+table.cmp tr:last-child>*{border-bottom:0}
+table.cmp td b,table.cmp td strong{color:#fff}
+.flow{display:flex;align-items:stretch;gap:8px;margin:18px 0}
+.flow .node{flex:1 1 0;min-width:0;border:1px solid rgba(115,225,237,.38);background:var(--panel);border-radius:15px;padding:13px 15px}
+.flow .node b{display:block;color:var(--cyan);font-size:clamp(16px,1.35vw,22px);margin-bottom:5px;line-height:1.15}
+.flow .node span{font-size:clamp(13px,1.02vw,16.5px);color:#c9dbee;line-height:1.36;display:block}
+.flow .node span b,.flow .node span strong{display:inline;font-size:inherit;color:#fff;margin:0;line-height:inherit}
+.flow .node .n{font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:900;margin-bottom:4px;display:block}
+.flow .arrow{align-self:center;color:#7f9bb8;font-size:24px;font-weight:900;flex:0 0 auto}
+.flow .node.hl{border-color:rgba(255,220,141,.7);background:rgba(255,220,141,.08)}.flow .node.hl b{color:var(--yellow)}
+.flow .node.vio{border-color:rgba(194,169,255,.6);background:rgba(57,52,94,.5)}.flow .node.vio b{color:var(--violet)}
+.flow .node.grn{border-color:rgba(140,232,180,.55);background:rgba(24,70,53,.45)}.flow .node.grn b{color:var(--green)}
+.tag{display:inline-block;padding:2px 9px;border-radius:7px;font-size:.8em;font-weight:850;background:rgba(138,182,255,.16);color:var(--blue);margin:0 4px 4px 0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.panel ul{margin:4px 0 0;padding-left:1.15em}
+.panel li{margin-bottom:5px}
+.panel h3{color:#eaf4ff}
+.panel .big-number.sm{font-size:clamp(26px,2.5vw,40px)}
+.panels.tight .panel{padding:clamp(13px,1.3vw,20px)}
+.panels.tight .panel p,.panels.tight .panel li{font-size:clamp(15px,1.22vw,19.5px)}
+pre.code{font-size:clamp(14px,1.18vw,19px);line-height:1.5}
+pre.code .kw{color:var(--cyan);font-weight:800}pre.code .cm{color:#7f97b0;font-style:italic}pre.code .st{color:var(--yellow)}
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(12px,1.3vw,22px);align-items:start;margin-top:16px}
+.mini-table{width:100%;border-collapse:collapse;font-size:clamp(14px,1.1vw,18px)}
+.mini-table th,.mini-table td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+.mini-table th{background:#123049;color:var(--cyan);font-weight:850}
+.mini-table td{color:#d6e5f3}
+.k-pk{color:var(--yellow);font-weight:900}.k-fk{color:var(--violet);font-weight:900}
+.venn{width:100%;max-width:190px;height:auto;display:block;margin:0 auto 8px}
+.hier{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.hier .lvl{border:1px solid rgba(115,225,237,.38);background:var(--panel);border-radius:14px;padding:12px 16px;font-size:clamp(16px,1.3vw,21px)}
+.hier .lvl b{color:var(--cyan)}
+.hier .lvl:nth-child(2){margin-left:34px;border-color:rgba(138,182,255,.45)}
+.hier .lvl:nth-child(3){margin-left:68px;border-color:rgba(194,169,255,.5)}
+/* ===== Práctica ===== */
+.quiz{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:clamp(12px,1.3vw,22px);align-items:start}
+.q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.q-prompt{font-size:clamp(18px,1.55vw,25px);font-weight:700;line-height:1.38;margin-bottom:12px;color:#f4f8ff}
+.q-multi{color:var(--yellow);font-weight:850;font-size:clamp(14px,1.1vw,17px);margin:-4px 0 10px}
+.q-multi[hidden]{display:none}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;width:100%;border:1px solid rgba(115,225,237,.30);border-radius:14px;padding:10px 15px;background:rgba(28,69,95,.4);color:var(--text);font-size:clamp(15px,1.2vw,19.5px);font-weight:600;line-height:1.35;transition:background .15s,border-color .15s}
+.opt .letter{flex-shrink:0;width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#174360;font-weight:900;color:var(--cyan);font-size:15px}
+.opt:hover:not(:disabled){border-color:var(--cyan);background:#205574}
+.opt.sel{border-color:var(--cyan);background:#1d4d6b}.opt.sel .letter{background:var(--cyan);color:#092332}
+.opt.ok{border-color:rgba(140,232,180,.85);background:rgba(44,113,79,.38)}.opt.ok .letter{background:var(--green);color:#10243a}
+.opt.ko{border-color:rgba(255,154,154,.85);background:rgba(132,54,68,.38)}.opt.ko .letter{background:var(--red);color:#10243a}
+.opt:disabled{opacity:1;cursor:default}
+.q-dots{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:12px 0 4px}
+.dot{min-height:31px;border-radius:8px;border:1px solid var(--line);background:rgba(18,49,72,.6);color:#a9bdd3;font-size:12.5px;font-weight:850;padding:0;font-variant-numeric:tabular-nums}
+.dot:hover{border-color:var(--cyan)}
+.dot.cur{outline:2px solid var(--yellow);outline-offset:1px;color:#fff}
+.dot.ok{background:#174b3a;color:#a5f9c5;border-color:rgba(140,232,180,.6)}
+.dot.ko{background:#512935;color:#ffd0d0;border-color:rgba(255,154,154,.6)}
+.q-side .inline-note{font-size:14px;line-height:1.4;color:var(--muted)}
+.q-side .button-row{gap:8px}.q-side .subtle-btn{padding:8px 12px;min-height:38px}
+.q-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
+.q-legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.result .explain{font-size:clamp(14px,1.08vw,17px);color:#d0dfef}
+@media(max-width:1100px){.quiz{grid-template-columns:1fr}.flow{flex-wrap:wrap}.flow .arrow{display:none}.flow .node{flex:1 1 30%}.split{grid-template-columns:1fr}}
+@media(max-width:680px){.flow .node{flex:1 1 100%}table.cmp{font-size:14px}table.cmp th,table.cmp td{padding:7px 9px}}
+
+</style>
+<style>/* ajuste para celular: que el contenido no quede más ancho que la pantalla */
+.app{grid-template-columns:minmax(0,1fr)}
+@media(max-width:680px){.brand{min-width:0;overflow:hidden;text-overflow:ellipsis}#phaseLabel,.timebox{display:none}.top-right{flex-shrink:0}table.cmp{display:block;overflow-x:auto}}
+</style>
+</head>
+<body data-deck="c3">
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><span class="brandmark dw" aria-hidden="true">DW</span> Data Warehousing · Repaso para el parcial</div>
+    <div class="top-right"><span class="sectiontag">Curso 3 · Transformación</span><span id="phaseLabel">Inicio</span><a href="index.html" title="Volver al índice">Índice</a></div>
+  </header>
+  <main class="stage" id="stage" aria-live="off">
+
+    <section class="slide active" data-phase="Inicio" data-note="Curso 3: cómo pasar de datos crudos a datos listos para analizar. Ojo con el vocabulario exacto del banco: detección/descubrimiento, recopilación, activación, staging, carga.">
+      <div class="slide-inner narrow">
+
+        <p class="kicker">Data Warehousing · Curso 3 · Repaso de parcial</p>
+        <h1>De datos crudos a <span class="accent">decisiones.</span></h1>
+        <p class="lead big-lead">Transformación de datos en la nube: recorrido, técnicas, canalizaciones ETL/ELT, validación, joins y datos derivados.</p>
+        <div class="chip-row"><span class="chip">Recorrido basado en datos</span><span class="chip">Transformación</span><span class="chip">ETL vs ELT</span><span class="chip">Lotes vs transmisión</span><span class="chip">Validación</span><span class="chip">JOINs</span><span class="chip">RFM</span><span class="chip">33 preguntas</span></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Recorrido basado en datos" data-note="Recopilación = detección/descubrimiento (encontrar y reunir) → recopilación. Decidir dónde guardar lo procesado = almacenamiento. Última etapa = activación (presentar visualizaciones). Se sigue de forma iterativa.">
+      <div class="slide-inner">
+
+        <p class="kicker">01 · Recorrido basado en datos</p>
+        <h2>Cinco etapas, de forma iterativa</h2>
+        <div class="flow">
+          <div class="node hl"><span class="n">01</span><b>Recopilación</b><span><b>Detección / descubrimiento</b>: encontrar los datos y reunirlos → <b>recopilación</b>.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">02</span><b>Procesamiento</b><span>Transformar, limpiar y preparar.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">03</span><b>Almacenamiento</b><span>Decidir <b>dónde guardar</b> los datos ya procesados.</span></div><div class="arrow">→</div>
+          <div class="node"><span class="n">04</span><b>Análisis</b><span>Consultas, modelos, conclusiones.</span></div><div class="arrow">→</div>
+          <div class="node grn"><span class="n">05</span><b>Activación</b><span><b>Última etapa</b>: presentar visualizaciones a las partes interesadas y actuar.</span></div>
+        </div>
+        <div class="callout">No es lineal: se sigue de manera <strong>iterativa</strong>, volviendo a etapas anteriores y adaptándolas a cada proyecto.</div>
+        <div class="pq" data-pq="41,42,43,44,45,108,109"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="41" title="Practicar la pregunta 41">#41</button><button type="button" data-goq="42" title="Practicar la pregunta 42">#42</button><button type="button" data-goq="43" title="Practicar la pregunta 43">#43</button><button type="button" data-goq="44" title="Practicar la pregunta 44">#44</button><button type="button" data-goq="45" title="Practicar la pregunta 45">#45</button><button type="button" data-goq="108" title="Practicar la pregunta 108">#108</button><button type="button" data-goq="109" title="Practicar la pregunta 109">#109</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Técnicas de transformación" data-note="Cambiar formato para compatibilidad = conversión. Fechas con formatos inconsistentes = estandarización. Registros idénticos o parcialmente idénticos = deduplicación.">
+      <div class="slide-inner">
+
+        <p class="kicker">02 · Técnicas de transformación</p>
+        <h2>¿Qué le hacemos a los datos?</h2>
+        <div class="panels three tight">
+          <div class="panel"><h3>Limpieza</h3><p>Corregir errores, faltantes y valores inválidos.</p></div>
+          <div class="panel"><h3>Estandarización</h3><p>Formato <b>uniforme</b>: fechas, unidades, mayúsculas.</p></div>
+          <div class="panel"><h3>Conversión</h3><p>Cambiar el <b>tipo o formato</b> para mejorar la compatibilidad.</p></div>
+          <div class="panel"><h3>Deduplicación</h3><p>Quitar registros <b>idénticos o parcialmente idénticos</b>.</p></div>
+          <div class="panel"><h3>Agregación y filtrado</h3><p>Resumir por grupo (totales, promedios) y quedarse con lo relevante.</p></div>
+          <div class="panel"><h3>Derivación y enriquecimiento</h3><p>Crear campos nuevos; sumar datos de otras fuentes.</p></div>
+        </div>
+        <div class="callout"><strong>Anonimización / enmascaramiento</strong>: ocultar o reemplazar la PII (ej.: <span class="mono">****1234</span>) antes de compartir o analizar.</div>
+        <div class="pq" data-pq="116,117,122"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="116" title="Practicar la pregunta 116">#116</button><button type="button" data-goq="117" title="Practicar la pregunta 117">#117</button><button type="button" data-goq="122" title="Practicar la pregunta 122">#122</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Automática vs manual" data-note="Transformar con SQL = transformación a través de consultas. Con datasets grandes, el problema de recursos típico es el almacenamiento.">
+      <div class="slide-inner">
+
+        <p class="kicker">03 · Cómo se transforma</p>
+        <h2>Manual, automática o con consultas</h2>
+        <div class="split">
+          <table class="cmp" style="margin-top:0">
+            <thead><tr><th></th><th>Manual</th><th>Automática</th></tr></thead>
+            <tbody>
+              <tr><th>Quién</th><td>Una persona, paso a paso</td><td>Herramientas y canalizaciones programadas</td></tr>
+              <tr><th>Cuándo</th><td>Pocos datos, casos puntuales</td><td>Grandes volúmenes, tareas repetidas</td></tr>
+              <tr><th>Riesgo</th><td>Lenta y propensa a errores</td><td>Requiere diseño y monitoreo</td></tr>
+            </tbody>
+          </table>
+          <div class="panel">
+            <div class="panel-title">Transformación a través de consultas (SQL)</div>
+            <pre class="code mono"><span class="kw">CREATE</span> <span class="kw">OR</span> REPLACE <span class="kw">TABLE</span> limpio.ventas <span class="kw">AS</span>
+<span class="kw">SELECT</span> <span class="kw">TRIM</span>(<span class="kw">UPPER</span>(pais)) <span class="kw">AS</span> pais,
+       <span class="kw">SAFE_CAST</span>(monto <span class="kw">AS</span> <span class="kw">FLOAT64</span>) <span class="kw">AS</span> monto,
+       <span class="kw">DATE</span>(fecha) <span class="kw">AS</span> fecha
+<span class="kw">FROM</span> crudo.ventas
+<span class="kw">WHERE</span> monto <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>;</pre>
+            <p class="small">Con datasets grandes, el recurso que suele complicar es el <b>almacenamiento</b>.</p>
+          </div>
+        </div>
+        <div class="pq" data-pq="110,51"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="110" title="Practicar la pregunta 110">#110</button><button type="button" data-goq="51" title="Practicar la pregunta 51">#51</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Canalizaciones" data-note="E = extraer y llevar a un área intermedia temporal (staging). Luego transformar. L = Load, cargar. Antes de cargar: crear tablas o directorios. Los 3 procesos se adaptan a cada problema.">
+      <div class="slide-inner">
+
+        <p class="kicker">04 · Canalizaciones de datos</p>
+        <h2>Extracción, transformación y carga</h2>
+        <div class="flow">
+          <div class="node"><b>Fuentes</b><span>Bases, APIs, archivos, apps</span></div><div class="arrow">→</div>
+          <div class="node hl"><span class="n">E</span><b>Extracción</b><span>Sacar los datos y trasladarlos a un <b>área intermedia temporal</b> (staging).</span></div><div class="arrow">→</div>
+          <div class="node hl"><span class="n">T</span><b>Transformación</b><span>Limpiar, estandarizar, unir, agregar.</span></div><div class="arrow">→</div>
+          <div class="node hl"><span class="n">L</span><b>Carga (Load)</b><span>Escribir en el destino: almacén, lake.</span></div><div class="arrow">→</div>
+          <div class="node grn"><b>Destino</b><span>Listo para analizar</span></div>
+        </div>
+        <div class="panels tight">
+          <div class="panel soft"><p><b>Antes de cargar</b>: preparar el almacenamiento de destino → <b>crear tablas o directorios nuevos</b>.</p></div>
+          <div class="panel soft"><p>Los tres procesos no son una receta fija: se <b>adaptan a cada problema de datos</b>.</p></div>
+        </div>
+        <div class="pq" data-pq="46,47,50,113,119"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="46" title="Practicar la pregunta 46">#46</button><button type="button" data-goq="47" title="Practicar la pregunta 47">#47</button><button type="button" data-goq="50" title="Practicar la pregunta 50">#50</button><button type="button" data-goq="113" title="Practicar la pregunta 113">#113</button><button type="button" data-goq="119" title="Practicar la pregunta 119">#119</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="ETL vs ELT" data-note="ELT en vez de ETL: flexibilidad para transformar según se necesite + usar la nube para el almacenamiento.">
+      <div class="slide-inner">
+
+        <p class="kicker">05 · Orden de la canalización</p>
+        <h2>ETL vs ELT</h2>
+        <table class="cmp">
+          <thead><tr><th></th><th>ETL · extraer → transformar → cargar</th><th>ELT · extraer → cargar → transformar</th></tr></thead>
+          <tbody>
+            <tr><th>Dónde se transforma</th><td>En un área o herramienta intermedia, <b>antes</b> de cargar</td><td><b>Dentro</b> del almacén en la nube, después de cargar</td></tr>
+            <tr><th>Qué se carga</th><td>Solo datos ya limpios</td><td>Datos crudos; se transforman luego</td></tr>
+            <tr><th>Flexibilidad</th><td>Menor: reglas definidas de antemano</td><td>Mayor: <b>transformar según se necesite</b> y volver a hacerlo</td></tr>
+            <tr><th>Elegilo cuando…</th><td>Hay que limpiar o anonimizar antes de guardar; destino con poca capacidad; reglas estables</td><td>Grandes volúmenes y se aprovecha <b>la nube para el almacenamiento</b> y cómputo (ej.: BigQuery)</td></tr>
+          </tbody>
+        </table>
+        <div class="pq" data-pq="112"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="112" title="Practicar la pregunta 112">#112</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Transferencia" data-note="Al diseñar la transferencia se decide la técnica para llevar las fuentes al área intermedia. Factor clave: si los datos son urgentes. Apenas disponibles = transmisión. Lotes: costos más bajos y datos no críticos.">
+      <div class="slide-inner">
+
+        <p class="kicker">06 · Transferencia de datos</p>
+        <h2>Por lotes vs transmisión</h2>
+        <div class="rule compact">Diseñar la transferencia = decidir <b>qué técnica</b> lleva los datos de las fuentes al <b>área intermedia</b>. Factor clave: <span class="accent-alt">¿los datos son urgentes?</span></div>
+        <div class="panels">
+          <div class="panel"><div class="big-number sm">Por lotes</div><ul><li>Se mueven en <b>intervalos programados</b> (cada hora, cada noche).</li><li><b>Costos más bajos</b>.</li><li>Datos <b>no críticos</b> o históricos.</li></ul></div>
+          <div class="panel"><div class="big-number sm">Transmisión</div><ul><li>Se procesan <b>apenas están disponibles</b>, de forma continua.</li><li>Más costosa y compleja.</li><li>Datos urgentes: alertas, paneles en vivo.</li></ul></div>
+        </div>
+        <div class="pq" data-pq="48,49,114,115"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="48" title="Practicar la pregunta 48">#48</button><button type="button" data-goq="49" title="Practicar la pregunta 49">#49</button><button type="button" data-goq="114" title="Practicar la pregunta 114">#114</button><button type="button" data-goq="115" title="Practicar la pregunta 115">#115</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Asignación de datos" data-note="Problemas de compatibilidad, integración y comprensión entre fuentes = las fuentes tienen formatos diferentes. La asignación (mapeo) define cómo cada campo de origen llega al destino.">
+      <div class="slide-inner">
+
+        <p class="kicker">07 · Asignación (mapeo) de datos</p>
+        <h2>Del campo de origen al de destino</h2>
+        <p class="lead">Definir cómo cada campo de una fuente <b>corresponde</b> a un campo del destino: nombre, tipo y regla de transformación.</p>
+        <table class="cmp">
+          <thead><tr><th>Origen</th><th>Ejemplo</th><th>Destino</th><th>Regla</th></tr></thead>
+          <tbody>
+            <tr><th class="mono">crm.cust_name</th><td class="mono">"  ana PÉREZ "</td><td class="mono">clientes.nombre STRING</td><td>Recortar espacios y normalizar mayúsculas</td></tr>
+            <tr><th class="mono">app.fecha_alta</th><td class="mono">"27/10/2026"</td><td class="mono">clientes.alta DATE</td><td>Convertir texto → fecha</td></tr>
+            <tr><th class="mono">web.tel</th><td class="mono">"099 123 456"</td><td class="mono">clientes.telefono</td><td>Estandarizar a +598…</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">¿Por qué hace falta? Porque las fuentes tienen <strong>formatos diferentes</strong> → problemas de compatibilidad, integración y comprensión.</div>
+        <div class="pq" data-pq="96"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="96" title="Practicar la pregunta 96">#96</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Perfilamiento y limpieza" data-note="Revisar errores tipográficos = errores de entrada de datos. En la transformación se corrigen duplicados e incompletos. Encontrar errores importa porque afectan la integridad de los datos.">
+      <div class="slide-inner">
+
+        <p class="kicker">08 · Perfilamiento y limpieza</p>
+        <h2>Conocer los datos antes de usarlos</h2>
+        <div class="split">
+          <div class="panel">
+            <p><b>Perfilamiento</b>: examinar estructura, contenido y calidad (conteos, nulos, valores distintos, mínimos y máximos).</p>
+            <div class="panel-title" style="margin-top:10px">Problemas a corregir</div>
+            <ul>
+              <li><b>Errores de entrada</b>: tipográficos, valores mal escritos.</li>
+              <li><b>Duplicados</b> e <b>incompletos</b> (faltantes, NULL).</li>
+              <li><b>Inconsistentes</b> (formatos) y <b>atípicos</b>.</li>
+            </ul>
+            <p class="small">Importa porque los errores <b>afectan la integridad de los datos</b> y las conclusiones.</p>
+          </div>
+          <pre class="code mono"><span class="cm">-- perfil rápido de una tabla</span>
+<span class="kw">SELECT</span> <span class="kw">COUNT</span>(*)              <span class="kw">AS</span> filas,
+       <span class="kw">COUNT</span>(email)          <span class="kw">AS</span> con_email,
+       <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> email) <span class="kw">AS</span> emails_unicos,
+       <span class="kw">MIN</span>(monto) <span class="kw">AS</span> minimo,
+       <span class="kw">MAX</span>(monto) <span class="kw">AS</span> maximo
+<span class="kw">FROM</span> crudo.clientes;</pre>
+        </div>
+        <div class="pq" data-pq="52,111,121"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="52" title="Practicar la pregunta 52">#52</button><button type="button" data-goq="111" title="Practicar la pregunta 111">#111</button><button type="button" data-goq="121" title="Practicar la pregunta 121">#121</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Validación" data-note="Validación que comprueba unicidad = validación de duplicados. El diccionario de datos es la referencia contra la que se valida.">
+      <div class="slide-inner">
+
+        <p class="kicker">09 · Validación de datos</p>
+        <h2>¿Los datos cumplen las reglas?</h2>
+        <div class="split">
+          <table class="cmp" style="margin-top:0">
+            <thead><tr><th>Validación</th><th>Comprueba que…</th></tr></thead>
+            <tbody>
+              <tr><th>De tipo</th><td>El valor es del tipo esperado (una fecha es fecha).</td></tr>
+              <tr><th>De formato</th><td>Sigue un patrón (email, teléfono).</td></tr>
+              <tr><th>De rango</th><td>Está dentro de límites (edad 0–120).</td></tr>
+              <tr><th>De duplicados</th><td>Hay <b>unicidad</b>: la clave no se repite.</td></tr>
+              <tr><th>De nulos / completitud</th><td>Los campos obligatorios están presentes.</td></tr>
+            </tbody>
+          </table>
+          <div class="panel">
+            <div class="panel-title">Diccionario de datos</div>
+            <p>Documento que describe cada campo: <b>nombre, definición, tipo, formato, valores permitidos y fuente</b>.</p>
+            <p class="small">Es la referencia para validar y para que todos interpreten igual los datos.</p>
+            <pre class="code mono"><span class="kw">SELECT</span> id_cliente, <span class="kw">COUNT</span>(*) <span class="kw">AS</span> n
+<span class="kw">FROM</span> limpio.clientes
+<span class="kw">GROUP BY</span> id_cliente
+<span class="kw">HAVING</span> <span class="kw">COUNT</span>(*) &gt; 1;  <span class="cm">-- unicidad</span></pre>
+          </div>
+        </div>
+        <div class="pq" data-pq="118"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="118" title="Practicar la pregunta 118">#118</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Carga y plan" data-note="Carga completa = reemplazar todo; incremental = solo lo nuevo o cambiado. El plan de transformación ordena todo lo anterior antes de construir la canalización.">
+      <div class="slide-inner">
+
+        <p class="kicker">10 · Carga y planificación</p>
+        <h2>Carga completa vs incremental</h2>
+        <table class="cmp">
+          <thead><tr><th></th><th>Carga completa</th><th>Carga incremental</th></tr></thead>
+          <tbody>
+            <tr><th>Qué hace</th><td>Reemplaza <b>todo</b> el destino en cada ejecución</td><td>Agrega solo registros <b>nuevos o modificados</b> desde la última carga</td></tr>
+            <tr><th>Ventaja</th><td>Simple; ideal para la carga inicial</td><td>Rápida y barata con volúmenes grandes</td></tr>
+            <tr><th>Desventaja</th><td>Costosa y lenta si hay muchos datos</td><td>Necesita marca de tiempo o ID para detectar cambios</td></tr>
+          </tbody>
+        </table>
+        <div class="panel soft" style="margin-top:14px"><div class="panel-title">Plan de transformación</div>
+          <p>1. Objetivo de negocio → 2. fuentes y perfilamiento → 3. asignación origen-destino → 4. reglas de transformación y validación → 5. ETL/ELT y lotes/transmisión → 6. probar, documentar y monitorear.</p></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Agregación y nulos" data-note="Agregar sirve para encontrar tendencias (hábitos de compra). Si solo interesan reproducciones por día: total de reproducciones por canción por día. COUNT(*) cuenta filas; COUNT(col), SUM y AVG ignoran NULL.">
+      <div class="slide-inner">
+
+        <p class="kicker">11 · Agregación de datos</p>
+        <h2>Resumir para ver tendencias</h2>
+        <div class="split">
+          <div class="panel">
+            <p><b>Agregación</b>: combinar muchos registros en valores resumidos por grupo para <b>encontrar tendencias</b> (ej.: hábitos de compra).</p>
+            <div class="panel-title" style="margin-top:10px">Cuidado con los NULL</div>
+            <ul>
+              <li><span class="mono">COUNT(*)</span> cuenta todas las filas.</li>
+              <li><span class="mono">COUNT(col)</span>, <span class="mono">SUM</span>, <span class="mono">AVG</span> <b>ignoran</b> los NULL.</li>
+              <li>Decidir: completar (<span class="mono">IFNULL</span> / <span class="mono">COALESCE</span>), excluir o marcar.</li>
+            </ul>
+          </div>
+          <pre class="code mono"><span class="cm">-- total de reproducciones por canción por día</span>
+<span class="kw">SELECT</span> cancion_id,
+       <span class="kw">DATE</span>(ts)  <span class="kw">AS</span> dia,
+       <span class="kw">COUNT</span>(*)  <span class="kw">AS</span> reproducciones
+<span class="kw">FROM</span> musica.escuchas
+<span class="kw">GROUP BY</span> cancion_id, dia
+<span class="kw">ORDER BY</span> dia, reproducciones <span class="kw">DESC</span>;</pre>
+        </div>
+        <div class="pq" data-pq="53,54,123"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="53" title="Practicar la pregunta 53">#53</button><button type="button" data-goq="54" title="Practicar la pregunta 54">#54</button><button type="button" data-goq="123" title="Practicar la pregunta 123">#123</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Duplicados" data-note="Dato duplicado = copia exacta de un registro. Detectar con GROUP BY + HAVING; quitar con DISTINCT o quedándose con una fila por clave.">
+      <div class="slide-inner">
+
+        <p class="kicker">12 · Datos duplicados</p>
+        <h2>Detectar y quitar duplicados</h2>
+        <div class="rule compact">Un <span class="accent">dato duplicado</span> es una <b>copia exacta</b> (o casi) de otro registro. Infla conteos y sumas.</div>
+        <div class="panels tight">
+          <div class="panel"><div class="panel-title">Filas idénticas</div><pre class="code mono"><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> *
+<span class="kw">FROM</span> crudo.clientes;</pre></div>
+          <div class="panel"><div class="panel-title">Una fila por clave (la más reciente)</div><pre class="code mono"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> crudo.clientes
+<span class="kw">QUALIFY</span> <span class="kw">ROW_NUMBER</span>() <span class="kw">OVER</span> (
+  <span class="kw">PARTITION BY</span> email
+  <span class="kw">ORDER BY</span> actualizado <span class="kw">DESC</span>) = 1;</pre></div>
+        </div>
+        <div class="pq" data-pq="55"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="55" title="Practicar la pregunta 55">#55</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="JOINs" data-note="Solo lo que coincide en ambas tablas = unión interna (INNER JOIN). LEFT conserva todo lo de la izquierda; RIGHT, todo lo de la derecha; FULL, todo de ambas, con NULL donde no hay coincidencia.">
+      <div class="slide-inner">
+
+        <p class="kicker">13 · Uniones (JOIN)</p>
+        <h2>Combinar tablas</h2>
+        <div class="panels four tight">
+          <div class="panel centered"><svg class="venn" viewBox="0 0 190 120" role="img" aria-label="Diagrama inner join"><defs><clipPath id="ci"><circle cx="120" cy="60" r="46"/></clipPath></defs><g fill="rgba(115,225,237,.08)" stroke="none"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><circle cx="70" cy="60" r="46" fill="#73e1ed" clip-path="url(#ci)"/><g fill="none" stroke="#c7d9ee" stroke-width="2"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><text x="44" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">A</text><text x="138" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">B</text></svg><h3>INNER JOIN</h3><p>Solo filas que <b>coinciden en ambas</b> tablas (unión interna).</p></div>
+          <div class="panel centered"><svg class="venn" viewBox="0 0 190 120" role="img" aria-label="Diagrama left join"><defs><clipPath id="cl"><circle cx="120" cy="60" r="46"/></clipPath></defs><g fill="rgba(115,225,237,.08)" stroke="none"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><circle cx="70" cy="60" r="46" fill="#73e1ed"/><g fill="none" stroke="#c7d9ee" stroke-width="2"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><text x="44" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">A</text><text x="138" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">B</text></svg><h3>LEFT JOIN</h3><p>Todas las de <b>A</b> + coincidencias de B; NULL si no hay.</p></div>
+          <div class="panel centered"><svg class="venn" viewBox="0 0 190 120" role="img" aria-label="Diagrama right join"><defs><clipPath id="cr"><circle cx="120" cy="60" r="46"/></clipPath></defs><g fill="rgba(115,225,237,.08)" stroke="none"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><circle cx="120" cy="60" r="46" fill="#73e1ed"/><g fill="none" stroke="#c7d9ee" stroke-width="2"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><text x="44" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">A</text><text x="138" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">B</text></svg><h3>RIGHT JOIN</h3><p>Todas las de <b>B</b> + coincidencias de A.</p></div>
+          <div class="panel centered"><svg class="venn" viewBox="0 0 190 120" role="img" aria-label="Diagrama full join"><defs><clipPath id="cf"><circle cx="120" cy="60" r="46"/></clipPath></defs><g fill="rgba(115,225,237,.08)" stroke="none"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><circle cx="70" cy="60" r="46" fill="#73e1ed"/><circle cx="120" cy="60" r="46" fill="#73e1ed"/><g fill="none" stroke="#c7d9ee" stroke-width="2"><circle cx="70" cy="60" r="46"/><circle cx="120" cy="60" r="46"/></g><text x="44" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">A</text><text x="138" y="66" font-size="18" font-weight="900" fill="#f4f8ff" stroke="#081322" stroke-width="3" paint-order="stroke">B</text></svg><h3>FULL OUTER JOIN</h3><p>Todas las filas de <b>ambas</b>, coincidan o no.</p></div>
+        </div>
+        <pre class="code mono"><span class="kw">SELECT</span> c.nombre, p.total
+<span class="kw">FROM</span> tienda.clientes <span class="kw">AS</span> c
+<span class="kw">INNER</span> <span class="kw">JOIN</span> tienda.pedidos <span class="kw">AS</span> p <span class="kw">ON</span> p.id_cliente = c.id_cliente;</pre>
+        <div class="pq" data-pq="124"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="124" title="Practicar la pregunta 124">#124</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Derivados y RFM" data-note="Datos derivados: no siempre son tan exactos como los originales. RFM = recencia, frecuencia y valor monetario por cliente.">
+      <div class="slide-inner">
+
+        <p class="kicker">14 · Datos derivados y RFM</p>
+        <h2>Crear información nueva</h2>
+        <div class="split">
+          <div class="panel">
+            <p><b>Datos derivados</b>: valores calculados a partir de otros (edad desde la fecha de nacimiento, margen, totales).</p>
+            <div class="callout" style="margin-top:6px">Problema a considerar: <strong>no siempre son tan exactos como los datos originales</strong> (redondeos, supuestos, errores que se arrastran).</div>
+            <div class="panels three tight" style="margin-top:12px">
+              <div class="panel soft centered"><div class="big-number sm">R</div><p class="small">Recencia: ¿hace cuánto compró?</p></div>
+              <div class="panel soft centered"><div class="big-number sm">F</div><p class="small">Frecuencia: ¿cuántas veces?</p></div>
+              <div class="panel soft centered"><div class="big-number sm">M</div><p class="small">Monetario: ¿cuánto gastó?</p></div>
+            </div>
+          </div>
+          <pre class="code mono"><span class="cm">-- análisis RFM: datos derivados por cliente</span>
+<span class="kw">SELECT</span> cliente_id,
+  <span class="kw">DATE_DIFF</span>(<span class="kw">CURRENT_DATE</span>(), <span class="kw">MAX</span>(fecha), <span class="kw">DAY</span>)
+                <span class="kw">AS</span> recencia,
+  <span class="kw">COUNT</span>(*)      <span class="kw">AS</span> frecuencia,
+  <span class="kw">SUM</span>(monto)    <span class="kw">AS</span> monetario
+<span class="kw">FROM</span> ventas.pedidos
+<span class="kw">GROUP BY</span> cliente_id;</pre>
+        </div>
+        <div class="pq" data-pq="125"><span class="pq-label">Pregunta de parcial</span><button type="button" data-goq="125" title="Practicar la pregunta 125">#125</button></div>
+      </div>
+    </section>
+    <section class="slide" data-phase="Práctica" data-note="Respondé sin mirar las diapositivas. Después usá «Repasar falladas» hasta llegar a cero errores. Las preguntas marcadas «Seleccioná dos respuestas» tienen dos opciones correctas.">
+      <div class="slide-inner narrow centered">
+
+        <p class="kicker">Práctica · banco de preguntas · curso 3</p>
+        <h2>Ahora, <span class="accent">a practicar.</span></h2>
+        <p class="lead">33 preguntas del banco relacionadas con este curso, con el texto original y su explicación.</p>
+        <div class="panels three">
+          <div class="panel"><div class="big-number">33</div><h3>Preguntas</h3><p class="small">Ordenadas por número del banco.</p></div>
+          <div class="panel"><div class="big-number">1 clic</div><h3>Respondés y ves</h3><p class="small">Correcta / incorrecta + explicación al instante.</p></div>
+          <div class="panel"><div class="big-number">A–E</div><h3>Teclado</h3><p class="small">Letras para responder · ← → para moverte entre preguntas.</p></div>
+        </div>
+        <div class="button-row" style="justify-content:center"><button type="button" class="big-btn primary" id="startQuiz">Empezar práctica →</button></div>
+        <p class="inline-note" style="margin-top:12px">Preguntas: 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 96, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 121, 122, 123, 124, 125</p>
+      </div>
+    </section>
+    <section class="slide" id="quizSlide" data-phase="Práctica" data-note="Atajos: A–E o 1–5 para responder, ← → para cambiar de pregunta, Inicio/Fin para ir a la primera o última diapositiva. El progreso se guarda en este navegador.">
+      <div class="slide-inner">
+
+        <div class="quiz">
+          <div class="panel q-main">
+            <div class="q-head"><span class="scenario-number" id="qNum" style="margin:0">PREGUNTA</span><span class="tiny" id="qPos"></span></div>
+            <p class="q-prompt" id="qPrompt"></p>
+            <p class="q-multi" id="qMulti" hidden>Seleccioná dos respuestas.</p>
+            <div class="opts" id="qOpts"></div>
+            <div class="result unknown" id="qFeedback"><div class="result-icon">?</div><div><div class="result-text">Elegí una opción.</div><div class="explain">La explicación aparece al responder.</div></div></div>
+            <div class="button-row"><button type="button" class="nav-btn" id="qPrev">← Anterior</button><button type="button" class="nav-btn next" id="qNext">Siguiente pregunta →</button></div>
+          </div>
+          <aside class="panel soft q-side">
+            <div class="panel-title">Tu puntaje</div>
+            <div class="big-number" id="qScore">0 / 0</div>
+            <p class="small" id="qScoreSub" style="margin:6px 0 0">0 de 33 respondidas</p>
+            <div class="q-dots" id="qDots"></div>
+            <div class="q-legend"><span><i style="background:#174b3a"></i>bien</span><span><i style="background:#512935"></i>mal</span><span><i style="background:rgba(18,49,72,.9);border:1px solid #36516b"></i>sin responder</span></div>
+            <div class="button-row"><button type="button" class="subtle-btn" id="qWrong">Repasar falladas</button><button type="button" class="subtle-btn" id="qShuffle">Mezclar</button><button type="button" class="subtle-btn" id="qReset">Reiniciar</button></div>
+            <p class="inline-note" id="qMode" style="margin-top:10px">Modo: todas las preguntas, en orden.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="bottom">
+    <div class="nav-left">
+      <span class="slide-counter" id="slideCounter" aria-live="polite">1 / 17</span>
+      <button class="subtle-btn" type="button" id="notesToggle" title="Clave para el parcial (N)" aria-expanded="false">Clave</button>
+    </div>
+    <div class="timebox"><span class="tiny">Práctica</span><span class="timer" id="scoreDisplay" aria-label="Puntaje de la práctica">0 / 0</span></div>
+    <div class="nav-right"><span class="footer-helper">← → avanzar · F pantalla completa</span><button class="nav-btn" type="button" id="prevBtn">← Atrás</button><button class="nav-btn next" type="button" id="nextBtn">Siguiente →</button></div>
+    <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+  </footer>
+  <aside id="teacherNotes" class="notes" role="complementary" hidden><h3>Clave para el parcial</h3><p id="notesText"></p><p style="font-size:14px;color:#516987">Ocultar: tecla N o botón «Clave».</p></aside>
+</div>
+<script type="application/json" id="qdata">[{"n": 41, "prompt": "Un analista de datos en la nube está trabajando en un proyecto de datos. ¿Cómo debería seguir el proceso de recorrido basado en datos en su proyecto?", "options": [{"id": "a", "text": "De manera estrictamente lineal, siguiendo las etapas en orden cronológico"}, {"id": "b", "text": "De manera iterativa, adaptando las etapas del proceso según lo requiera el proyecto"}, {"id": "c", "text": "De forma híbrida, combinando el proceso con al menos alguna otra metodología de análisis de datos"}, {"id": "d", "text": "De una manera algo lineal, cronometrando cada etapa para usar la misma cantidad de tiempo en cada una"}], "correct": ["b"], "explanation": "El recorrido es iterativo: las etapas se adaptan a lo que requiere el proyecto."}, {"n": 42, "prompt": "¿Cuál es la última etapa en el proceso de recorrido basado en datos?", "options": [{"id": "a", "text": "Análisis"}, {"id": "b", "text": "Proceso"}, {"id": "c", "text": "Recopilación"}, {"id": "d", "text": "Activación"}], "correct": ["d"], "explanation": "Etapas: recopilación, proceso, almacenamiento, análisis y activación. La última es la activación."}, {"n": 43, "prompt": "Un analista de datos en la nube que sigue el proceso de recorrido basado en datos se encuentra en la fase de recopilación. Está tratando de encontrar los datos y juntarlos. ¿En qué paso de la etapa de la recopilación está trabajando el analista de datos en la nube?", "options": [{"id": "a", "text": "Preparación de los datos para la transformación"}, {"id": "b", "text": "Evaluación de los datos"}, {"id": "c", "text": "Detección de datos"}, {"id": "d", "text": "Estandarización de datos"}], "correct": ["c"], "explanation": "Encontrar los datos corresponde a la detección (discovery) dentro de la recopilación."}, {"n": 44, "prompt": "¿Qué paso de la etapa de recopilación de datos se realiza después del paso de detección de datos?", "options": [{"id": "a", "text": "Recopilación de datos"}, {"id": "b", "text": "Estandarización de datos"}, {"id": "c", "text": "Preparación de los datos para la transformación"}, {"id": "d", "text": "Preparación de los datos para el almacenamiento"}], "correct": ["a"], "explanation": "Tras detectar los datos, se recopilan."}, {"n": 45, "prompt": "Un analista de datos en la nube está decidiendo dónde almacenará los datos luego de procesarlos. ¿En qué etapa del proceso de recorrido basado en datos toma esta decisión?", "options": [{"id": "a", "text": "Activación"}, {"id": "b", "text": "Análisis"}, {"id": "c", "text": "Almacenamiento"}, {"id": "d", "text": "Proceso"}], "correct": ["c"], "explanation": "Decidir dónde guardar los datos procesados corresponde a la etapa de almacenamiento."}, {"n": 46, "prompt": "Una canalización de datos tiene tres procesos principales. Cuando un analista de datos en la nube trabaja con datos, ¿cómo debe seguir estos procesos?", "options": [{"id": "a", "text": "El analista debe diseñar un problema de datos con el objetivo de alinearse con el orden de los procesos."}, {"id": "b", "text": "El analista debe adaptar los procesos para cada problema de datos."}, {"id": "c", "text": "El analista debe seguir los procesos en un orden riguroso: extraer, cargar y transformar."}, {"id": "d", "text": "El analista debe seguir los procesos con la metodología de canalización."}], "correct": ["b"], "explanation": "No hay un orden rígido: el analista adapta los procesos a cada problema de datos."}, {"n": 47, "prompt": "¿Qué significa la «L» en la técnica de canalización ETL?", "options": [{"id": "a", "text": "Registros (Logs)"}, {"id": "b", "text": "Aprender (Learn)"}, {"id": "c", "text": "Liderar (Lead)"}, {"id": "d", "text": "Cargar (Load)"}], "correct": ["d"], "explanation": "ETL: Extraer, Transformar, Cargar (Load)."}, {"n": 48, "prompt": "Un analista de datos en la nube diseña una canalización. Está trabajando en un diseño para el proceso de transferencia. ¿Qué decide en este proceso?", "options": [{"id": "a", "text": "Decide qué proceso quiere usar para la asignación de datos."}, {"id": "b", "text": "Decide qué fuentes de datos usará durante un período."}, {"id": "c", "text": "Decide si usar o no un almacenamiento en etapa intermedia para la canalización de datos."}, {"id": "d", "text": "Decide qué técnica usará para el traslado de las fuentes de datos hacia un área de almacenamiento en etapa intermedia."}], "correct": ["d"], "explanation": "En la transferencia se decide la técnica para trasladar datos de las fuentes al área de almacenamiento intermedio."}, {"n": 49, "prompt": "Un equipo de datos está trabajando en el diseño de una canalización. Como primer paso, necesitan elegir una técnica que les permita procesar los datos apenas estén disponibles. ¿Qué técnica debe usar el equipo de datos para trasladar los datos sin procesar hacia el área de almacenamiento en etapa intermedia?", "options": [{"id": "a", "text": "Transferencia de paquete"}, {"id": "b", "text": "Transferencia por lotes"}, {"id": "c", "text": "Transferencia de programa"}, {"id": "d", "text": "Transferencia de transmisión"}], "correct": ["d"], "explanation": "La transferencia de transmisión (streaming) procesa los datos apenas están disponibles."}, {"n": 50, "prompt": "Un equipo de datos en la nube está trabajando en una canalización de datos. ¿Cuál es el siguiente paso en la canalización de datos una vez que el equipo recopiló y trasladó los datos al área de almacenamiento en etapa intermedia?", "options": [{"id": "a", "text": "Transferir los datos"}, {"id": "b", "text": "Asignar los datos"}, {"id": "c", "text": "Transformar los datos"}, {"id": "d", "text": "Explorar los datos"}], "correct": ["c"], "explanation": "Tras extraer y llevar los datos al área intermedia, se transforman."}, {"n": 51, "prompt": "Un analista de datos en la nube que trabaja con un gran conjunto de datos está transformando los datos. ¿Qué problemas con relación a los recursos podría encontrar?", "options": [{"id": "a", "text": "Integridad"}, {"id": "b", "text": "Almacenamiento"}, {"id": "c", "text": "Silos"}, {"id": "d", "text": "Acceso"}], "correct": ["b"], "explanation": "Con conjuntos grandes, el almacenamiento es uno de los recursos que pueden volverse un problema."}, {"n": 52, "prompt": "Un analista de datos en la nube está trabajando en un conjunto de datos. Como parte del proceso, comprueba que los datos no tengan errores tipográficos. ¿Qué tipo de errores está buscando?", "options": [{"id": "a", "text": "Errores de transformación de datos"}, {"id": "b", "text": "Errores de entrada de datos"}, {"id": "c", "text": "Errores del modelo de datos"}, {"id": "d", "text": "Errores de lectura masiva"}], "correct": ["b"], "explanation": "Los errores de tipeo son errores de entrada de datos."}, {"n": 53, "prompt": "A un analista de datos en la nube le asignaron la optimización del espacio de almacenamiento de un gran conjunto de datos de un servicio de transmisión de música. El conjunto de datos genera un dato con la hora y el día cada vez que se reproduce una canción. Al servicio de transmisión solo le interesa saber cuántas veces por día se reproduce una canción. ¿Cómo puede la agregación de datos ayudar al analista de datos en la nube a optimizar el espacio de almacenamiento para tener un solo dato?", "options": [{"id": "a", "text": "Agregando la cantidad total de canciones que se reproducen por día"}, {"id": "b", "text": "Agregando el total de reproducciones por canción por día"}, {"id": "c", "text": "Agregando el total de reproducciones por canción por hora"}, {"id": "d", "text": "Agregando la cantidad total de reproducciones por canción y por cliente"}], "correct": ["b"], "explanation": "Agregar el total de reproducciones por canción por día deja un solo dato por canción y día."}, {"n": 54, "prompt": "A un analista de datos en la nube le asignaron un proyecto, y necesita trabajar con un conjunto de datos para extraer las estadísticas de los datos. Como parte del proceso, agrega los datos en el conjunto de datos. ¿Para qué lo hace?", "options": [{"id": "a", "text": "Para encontrar tendencias en los datos"}, {"id": "b", "text": "Para evaluar las preferencias del cliente"}, {"id": "c", "text": "Para analizar el tráfico de red"}, {"id": "d", "text": "Para comparar los datos del conjunto de datos"}], "correct": ["a"], "explanation": "La agregación resume los datos y permite encontrar tendencias."}, {"n": 55, "prompt": "En análisis de datos, ¿qué término se usa para referirse a la copia exacta de un registro?", "options": [{"id": "a", "text": "Datos agregados"}, {"id": "b", "text": "Datos duplicados"}, {"id": "c", "text": "Datos depurados"}, {"id": "d", "text": "Copia de seguridad de los datos"}], "correct": ["b"], "explanation": "Los datos duplicados son copias exactas de un registro."}, {"n": 96, "prompt": "Un analista de datos de la nube trabaja con varias fuentes de datos. Se encuentran con problemas de compatibilidad, integración y comprensión de los datos. ¿A qué se debe el problema?", "options": [{"id": "a", "text": "Las fuentes de datos tienen formatos diferentes."}, {"id": "b", "text": "Las fuentes de datos se almacenan en silos."}, {"id": "c", "text": "Las fuentes de datos son amplias y complejas."}, {"id": "d", "text": "Las fuentes de datos proceden de distintos propietarios."}], "correct": ["a"], "explanation": "Los formatos diferentes causan problemas de compatibilidad e integración."}, {"n": 108, "prompt": "Un analista de datos en la nube está recopilando todos los datos necesarios para un proyecto de datos. A continuación, deberá reunir todos los datos y prepararlos para el procesamiento. ¿En qué paso de la etapa de recopilación de datos está trabajando el analista de datos en la nube?", "options": [{"id": "a", "text": "Etapa de almacenamiento en etapa intermedia de los datos"}, {"id": "b", "text": "Eliminación de datos"}, {"id": "c", "text": "Transformación de datos"}, {"id": "d", "text": "Descubrimiento de datos"}], "correct": ["d"], "explanation": "Identificar y recopilar los datos necesarios es el descubrimiento de datos."}, {"n": 109, "prompt": "Un analista de datos en la nube está trabajando en una de las etapas del recorrido de los datos. Presenta visualizaciones a las partes interesadas. ¿En qué etapa del recorrido de los datos está trabajando el analista de datos en la nube?", "options": [{"id": "a", "text": "Recopilación"}, {"id": "b", "text": "Activación"}, {"id": "c", "text": "Almacenamiento"}, {"id": "d", "text": "Procesamiento"}], "correct": ["b"], "explanation": "Presentar visualizaciones a las partes interesadas es la etapa de activación."}, {"n": 110, "prompt": "Un analista de datos en la nube transforma datos con SQL. ¿Qué tipos de transformación de datos usa?", "options": [{"id": "a", "text": "Transformación automatizada"}, {"id": "b", "text": "Transformación manual"}, {"id": "c", "text": "Transformación a través de consultas"}, {"id": "d", "text": "Transformación de programación"}], "correct": ["c"], "explanation": "Transformar datos con SQL es transformación a través de consultas."}, {"n": 111, "prompt": "Un analista de datos en la nube empieza un proyecto nuevo. Sigue el proceso del recorrido de los datos y se encuentra en la etapa de transformación. ¿Qué problemas pueden tener los datos que el analista de datos en la nube deberá corregir?", "options": [{"id": "a", "text": "Los datos son numéricos."}, {"id": "b", "text": "Los datos están en un silo."}, {"id": "c", "text": "Los datos están duplicados."}, {"id": "d", "text": "Los datos son secuenciales."}, {"id": "e", "text": "Los datos están incompletos."}], "correct": ["c", "e"], "explanation": "Se corrigen los datos duplicados y los incompletos."}, {"n": 112, "prompt": "Un analista de datos en la nube recibe la tarea de crear una canalización para solucionar un problema de datos. Según las características del problema, elige una canalización ELT. ¿Qué dos razones hay para que el analista de datos en la nube elija la canalización ELT por sobre la canalización ETL?", "options": [{"id": "a", "text": "Los datos se encuentran en más de cuatro fuentes de datos."}, {"id": "b", "text": "Necesita flexibilidad para transformar los datos según sea necesario."}, {"id": "c", "text": "Los datos deben rastrearse en cuanto estén disponibles."}, {"id": "d", "text": "Necesita a la nube para el almacenamiento de datos."}, {"id": "e", "text": "Trabaja con datos históricos."}], "correct": ["b", "d"], "explanation": "ELT da flexibilidad para transformar después de cargar y aprovecha la nube como almacenamiento."}, {"n": 113, "prompt": "Un analista de datos en la nube está solucionando un problema de datos con una canalización. Como parte del proceso, se trasladan los datos a un área de almacenamiento en etapa intermedia temporal. ¿En qué etapa de la canalización de datos está trabajando el analista de datos en la nube?", "options": [{"id": "a", "text": "Procesamiento"}, {"id": "b", "text": "Extracción"}, {"id": "c", "text": "Carga"}, {"id": "d", "text": "Transformación"}], "correct": ["b"], "explanation": "Trasladar datos a un área intermedia temporal es parte de la extracción."}, {"n": 114, "prompt": "Un analista de datos en la nube diseña una canalización de datos. Se encuentra en la etapa de extracción y está decidiendo qué técnica de transferencia usar. ¿Cuál es un factor clave para tomar esta decisión?", "options": [{"id": "a", "text": "Cuánto almacenamiento se necesita"}, {"id": "b", "text": "Si los datos son urgentes"}, {"id": "c", "text": "Cuál es el programa de transferencia"}, {"id": "d", "text": "Dónde están disponibles los datos"}], "correct": ["b"], "explanation": "La urgencia de los datos decide entre transmisión y lotes."}, {"n": 115, "prompt": "Un analista de datos en la nube está diseñando el primer paso de una canalización de datos. Decide usar la transferencia por lotes. ¿Por qué el analista de datos en la nube elige la transferencia por lotes por sobre la transferencia de transmisión?", "options": [{"id": "a", "text": "Quiere resultados rápidos."}, {"id": "b", "text": "Los datos no están en la nube."}, {"id": "c", "text": "Los datos son urgentes."}, {"id": "d", "text": "Quiere tener costos más bajos."}, {"id": "e", "text": "Los datos no son críticos."}], "correct": ["d", "e"], "explanation": "Lotes cuesta menos y sirve cuando los datos no son críticos ni urgentes."}, {"n": 116, "prompt": "¿Cuál es el término que se usa para la técnica de manipulación que cambia el formato de los datos para mejorar la compatibilidad?", "options": [{"id": "a", "text": "Enriquecimiento de datos"}, {"id": "b", "text": "Conversión de datos"}, {"id": "c", "text": "Procesamiento de datos"}, {"id": "d", "text": "Estandarización de datos"}], "correct": ["b"], "explanation": "La conversión de datos cambia el formato para mejorar la compatibilidad."}, {"n": 117, "prompt": "Un analista de datos en la nube está trabajando con un conjunto de datos. Nota que los campos que contienen fechas no siguen el mismo formato y encuentra inconsistencias de formato en algunos otros campos. ¿Qué técnica de manipulación puede usar el analista de datos en la nube para corregir estos problemas de formato?", "options": [{"id": "a", "text": "Estandarización de datos"}, {"id": "b", "text": "Conversión de datos"}, {"id": "c", "text": "Creación de perfiles de datos"}, {"id": "d", "text": "Enriquecimiento de datos"}], "correct": ["a"], "explanation": "Estandarizar los datos unifica formatos como las fechas."}, {"n": 118, "prompt": "Un analista de datos en la nube que está validando los datos comprueba su unicidad. ¿Qué técnica de validación usa?", "options": [{"id": "a", "text": "Validación de formato"}, {"id": "b", "text": "Validación de tipos"}, {"id": "c", "text": "Validación de nulos"}, {"id": "d", "text": "Validación de duplicados"}], "correct": ["d"], "explanation": "Comprobar la unicidad es validación de duplicados."}, {"n": 119, "prompt": "Un analista de datos en la nube tiene todo listo para comenzar la fase de carga de su canalización. Como paso siguiente, debe preparar el almacenamiento para recibir los datos. ¿Qué debería hacer antes de empezar a cargar los datos?", "options": [{"id": "a", "text": "Crear tablas o directorios nuevos"}, {"id": "b", "text": "Diseñar la fase de transformación"}, {"id": "c", "text": "Crear datos y búsquedas nuevas"}, {"id": "d", "text": "Diseñar la fase de extracción"}], "correct": ["a"], "explanation": "Antes de cargar los datos se preparan tablas o directorios nuevos."}, {"n": 121, "prompt": "Un analista de datos en la nube está trabajando en un proyecto de datos. Busca errores en el conjunto de datos. ¿Por qué es tan importante encontrar los errores en el conjunto de datos?", "options": [{"id": "a", "text": "Los errores afectan la potencia de procesamiento."}, {"id": "b", "text": "Los errores afectan la integridad de los datos."}, {"id": "c", "text": "Los errores duplican el almacenamiento necesario para los datos."}, {"id": "d", "text": "Los errores reducen la velocidad del proceso de transformación."}], "correct": ["b"], "explanation": "Los errores afectan la integridad de los datos."}, {"n": 122, "prompt": "Un analista de datos en la nube está trabajando con un conjunto de datos. Revisa el conjunto de datos en busca de registros que sean idénticos, o parcialmente idénticos, para borrarlos o corregirlos. ¿Qué está haciendo el analista de datos en la nube?", "options": [{"id": "a", "text": "Realizando agregaciones."}, {"id": "b", "text": "Transfiriendo el conjunto de datos."}, {"id": "c", "text": "Explorando el conjunto de datos."}, {"id": "d", "text": "Anulando la duplicación del conjunto de datos."}], "correct": ["d"], "explanation": "Anular la duplicación borra o corrige registros idénticos o parcialmente idénticos."}, {"n": 123, "prompt": "Un analista de datos en la nube está ayudando al equipo de ventas a encontrar tendencias en los hábitos de compra de los clientes. ¿Qué técnica lo ayudará a encontrar las tendencias en los datos?", "options": [{"id": "a", "text": "Enriquecimiento de datos"}, {"id": "b", "text": "Anulación de duplicación de datos"}, {"id": "c", "text": "Estandarización de datos"}, {"id": "d", "text": "Agregación de datos"}], "correct": ["d"], "explanation": "La agregación de datos ayuda a encontrar tendencias."}, {"n": 124, "prompt": "Un analista de datos en la nube está uniendo dos tablas. Para el proyecto, solo necesita la información que coincide en ambas tablas. ¿Qué tipo de unión debería usar el analista de datos en la nube?", "options": [{"id": "a", "text": "Unión externa"}, {"id": "b", "text": "Unión externa izquierda"}, {"id": "c", "text": "Unión interna"}, {"id": "d", "text": "Unión externa completa"}], "correct": ["c"], "explanation": "La unión interna devuelve solo la información que coincide en ambas tablas."}, {"n": 125, "prompt": "Un analista de datos en la nube está trabajando con un conjunto de datos que es el resultado de un proceso de derivación de datos. ¿Qué problema de datos debería tener en cuenta el analista cuando use datos derivados?", "options": [{"id": "a", "text": "Los datos pueden tener valores NULL como producto de la transformación."}, {"id": "b", "text": "Los datos pueden tener información de identificación personal."}, {"id": "c", "text": "Los datos no siempre son tan exactos como los datos originales."}, {"id": "d", "text": "Los datos no siempre están disponibles para el analista."}], "correct": ["c"], "explanation": "Los datos derivados pueden no ser tan exactos como los originales."}]</script>
+<script>
+(function(){
+'use strict';
+const slides=Array.from(document.querySelectorAll('.slide'));
+const $=id=>document.getElementById(id);
+let current=0;
+function showSlide(i){if(i<0||i>=slides.length)return;slides[current].classList.remove('active');current=i;const s=slides[i];s.classList.add('active');s.scrollTop=0;$('slideCounter').textContent=(i+1)+' / '+slides.length;$('phaseLabel').textContent=s.dataset.phase||'Repaso';$('progressFill').style.width=((i+1)/slides.length*100)+'%';$('prevBtn').disabled=(i===0);$('nextBtn').disabled=(i===slides.length-1);$('nextBtn').textContent=i===slides.length-1?'Fin del repaso ✓':'Siguiente →';closeNotes();if(location.hash!=='#'+(i+1))history.replaceState(null,'','#'+(i+1));}
+function closeNotes(){$('teacherNotes').hidden=true;$('notesToggle').setAttribute('aria-expanded','false')}
+function toggleNotes(){const wasHidden=$('teacherNotes').hidden;$('teacherNotes').hidden=!wasHidden;$('notesToggle').setAttribute('aria-expanded',String(wasHidden));$('notesText').textContent=slides[current].dataset.note||'Sin notas para esta diapositiva.';}
+$('nextBtn').addEventListener('click',()=>showSlide(current+1));
+$('prevBtn').addEventListener('click',()=>showSlide(current-1));
+$('notesToggle').addEventListener('click',toggleNotes);
+
+/* ---------- Práctica ---------- */
+const QS=JSON.parse($('qdata').textContent);
+const KEY='dw-practica-'+document.body.dataset.deck;
+const quizIndex=slides.indexOf($('quizSlide'));
+let state=QS.map(()=>({sel:[],done:false,ok:false}));
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&saved.length===QS.length)state=saved;}catch(err){}
+let order=QS.map((_,i)=>i),pos=0,mode='Modo: todas las preguntas, en orden.';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(err){}};
+function updateScore(){const answered=state.filter(s=>s.done).length,ok=state.filter(s=>s.ok).length;$('qScore').textContent=ok+' / '+answered;$('qScoreSub').textContent=answered+' de '+QS.length+' respondidas'+(answered?' · '+Math.round(ok/answered*100)+'% de acierto':'');$('scoreDisplay').textContent=ok+' / '+answered;$('qWrong').disabled=!state.some(s=>s.done&&!s.ok);
+  document.querySelectorAll('.pq button').forEach(b=>{const k=QS.findIndex(q=>q.n===Number(b.dataset.goq));b.classList.toggle('ok',k>=0&&state[k].done&&state[k].ok);b.classList.toggle('ko',k>=0&&state[k].done&&!state[k].ok)});}
+function letter(id){return id.toUpperCase()}
+function renderQ(){
+  const i=order[pos],q=QS[i],st=state[i],multi=q.correct.length>1;
+  $('qNum').textContent='PREGUNTA '+q.n+' DEL BANCO';
+  $('qPos').textContent=(pos+1)+' / '+order.length;
+  $('qPrompt').textContent=q.prompt;
+  $('qMulti').hidden=!multi||/dos respuestas/i.test(q.prompt);
+  const box=$('qOpts');box.innerHTML='';
+  q.options.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='opt';b.dataset.id=o.id;b.innerHTML='<span class="letter"></span><span class="otext"></span>';b.querySelector('.letter').textContent=letter(o.id);b.querySelector('.otext').textContent=o.text;
+    if(st.sel.includes(o.id))b.classList.add('sel');
+    if(st.done){b.disabled=true;b.classList.remove('sel');if(q.correct.includes(o.id))b.classList.add('ok');else if(st.sel.includes(o.id))b.classList.add('ko');}
+    b.addEventListener('click',()=>choose(o.id));box.appendChild(b)});
+  const fb=$('qFeedback');
+  if(st.done){const right=q.correct.map(letter).join(' y ');fb.className='result '+(st.ok?'good':'bad');fb.innerHTML='<div class="result-icon">'+(st.ok?'✓':'×')+'</div><div><div class="result-text"></div><div class="explain"></div></div>';fb.querySelector('.result-text').textContent=st.ok?'¡Correcto!':'Incorrecto · '+(multi?'las correctas son ':'la correcta es ')+right;fb.querySelector('.explain').textContent=q.explanation;}
+  else{fb.className='result unknown';fb.innerHTML='<div class="result-icon">?</div><div><div class="result-text"></div><div class="explain">La explicación aparece al responder.</div></div>';fb.querySelector('.result-text').textContent=multi?('Elegí dos opciones ('+st.sel.length+'/2).'):'Elegí una opción.';}
+  $('qPrev').disabled=pos===0;$('qNext').disabled=pos===order.length-1;
+  const dots=$('qDots');dots.innerHTML='';
+  QS.forEach((qq,k)=>{const d=document.createElement('button');d.type='button';d.className='dot'+(state[k].done?(state[k].ok?' ok':' ko'):'')+(k===i?' cur':'');d.textContent=qq.n;d.title='Pregunta '+qq.n;d.addEventListener('click',()=>goQuestion(qq.n));dots.appendChild(d)});
+  $('qMode').textContent=mode;
+  updateScore();
+}
+function choose(id){const i=order[pos],q=QS[i],st=state[i];if(st.done)return;
+  if(q.correct.length===1){st.sel=[id]}else{st.sel=st.sel.includes(id)?st.sel.filter(x=>x!==id):st.sel.concat(id)}
+  if(st.sel.length===q.correct.length){st.done=true;st.ok=st.sel.every(x=>q.correct.includes(x));save();}
+  renderQ();}
+function goQuestion(n){let k=QS.findIndex(q=>q.n===n);if(k<0)return;if(!order.includes(k)){order=QS.map((_,i)=>i);mode='Modo: todas las preguntas, en orden.'}pos=order.indexOf(k);renderQ();if(current!==quizIndex)showSlide(quizIndex);}
+function move(d){const p=pos+d;if(p<0||p>=order.length)return false;pos=p;renderQ();return true}
+$('qPrev').addEventListener('click',()=>move(-1));
+$('qNext').addEventListener('click',()=>move(1));
+$('qWrong').addEventListener('click',()=>{const w=QS.map((_,i)=>i).filter(i=>state[i].done&&!state[i].ok);if(!w.length)return;w.forEach(i=>state[i]={sel:[],done:false,ok:false});order=w;pos=0;mode='Modo: repasando '+w.length+' pregunta(s) falladas.';save();renderQ()});
+$('qShuffle').addEventListener('click',()=>{order=QS.map((_,i)=>i);for(let k=order.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[order[k],order[j]]=[order[j],order[k]]}pos=0;mode='Modo: todas las preguntas, orden aleatorio.';renderQ()});
+$('qReset').addEventListener('click',()=>{state=QS.map(()=>({sel:[],done:false,ok:false}));order=QS.map((_,i)=>i);pos=0;mode='Modo: todas las preguntas, en orden.';save();renderQ()});
+$('startQuiz').addEventListener('click',()=>{const k=state.findIndex(s=>!s.done);order=QS.map((_,i)=>i);pos=k<0?0:k;renderQ();showSlide(quizIndex)});
+document.querySelectorAll('[data-goq]').forEach(b=>b.addEventListener('click',()=>goQuestion(Number(b.dataset.goq))));
+
+document.addEventListener('keydown',ev=>{
+  const el=document.activeElement;const editing=el && ['INPUT','TEXTAREA','SELECT'].includes(el.tagName);
+  if(editing && !['Escape'].includes(ev.key))return;
+  if(ev.ctrlKey||ev.metaKey||ev.altKey)return;
+  const inQuiz=current===quizIndex;
+  const k=ev.key.toLowerCase();
+  if(inQuiz && /^[a-e1-5]$/.test(k)){const i=order[pos],q=QS[i];const idx=/[1-5]/.test(k)?Number(k)-1:k.charCodeAt(0)-97;if(q.options[idx]){ev.preventDefault();choose(q.options[idx].id)}return}
+  if(ev.key==='ArrowRight'||(ev.key===' ' && el===document.body)){ev.preventDefault();if(!(inQuiz&&move(1)))showSlide(current+1)}
+  else if(ev.key==='ArrowLeft'){ev.preventDefault();if(!(inQuiz&&move(-1)))showSlide(current-1)}
+  else if(ev.key==='Home'){ev.preventDefault();showSlide(0)}
+  else if(ev.key==='End'){ev.preventDefault();showSlide(slides.length-1)}
+  else if(k==='f'){ev.preventDefault();if(document.fullscreenElement){document.exitFullscreen?.()}else{document.getElementById('app').requestFullscreen?.().catch(()=>{})}}
+  else if(k==='n'){ev.preventDefault();toggleNotes()}
+  else if(ev.key==='Escape'){closeNotes()}
+});
+renderQ();
+const start=parseInt(location.hash.slice(1),10);
+showSlide(start>=1&&start<=slides.length?start-1:0);
+})();
+</script>
+<script src="lectura.js" defer></script>
+</body>
+</html>
